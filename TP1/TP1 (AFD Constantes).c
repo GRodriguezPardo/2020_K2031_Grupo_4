@@ -3,8 +3,6 @@
 #include <string.h>  //Para la funcion de pedir ubicacion de archivos (no son hacks, no usa nada en el programa "real")
 #include <windows.h> //Para limpiar la pantalla y agilizar el menu (temas esteticos del .exe)
 
-//Sugiero leer desde el main hacia arriba, yendo a las funciones que se llamen en su orden
-
 void menu (){   //Un menu muy bonico :)
 
 	system("cls");
@@ -12,8 +10,6 @@ void menu (){   //Un menu muy bonico :)
 	printf("1-Abrir archivo de texto con las constantes\n");
 	printf("2-Crear archivo de guardado de resultados\n");
 	printf("3-Comenzar el analisis\n");
-	printf("4-Ver esquema del automata finito a utilizar\n");
-	printf("5-Analisis paso a paso\n");
 	printf("0-Salir\n");
 	printf("Opcion: ");
 }
@@ -23,69 +19,10 @@ void opcionElegida (int opcion){     //Probando un nuevo estilo de menu, que lim
 	printf("Opcion Elegida: %i\n",opcion);
 }
 
-void sinComentarios (int a, char b[], int c, int d, int e[][6]){       //Para cuando se elige el analisis normalito (opcion 3) :)
-	return;                                                         
-}
-
-void imprimirTabla (int estado, int columna, int tt[][6]){       //Imprime la tabla de transicion. Los parametros son para resaltar el estado actual en el analisis paso a paso
-
-    int i=0;
-    int j=0;
-    printf("\n      (0)  (1-7) (8-9) (A-F)  (x)  (Otro)\n");
-    for (i=0; i<7; i++){
-        printf(" Q%i | ",i);
-        for(j=0; j<6; j++){
-            if(i==estado && j==columna-1){
-                printf("(%i)   ", tt[i][j]);
-             }
-             else{
-                 printf(" %i    ", tt[i][j]);
-             }
-         }
-     printf("\n");
-     }
-     printf("\n");
-}
-
-void activarComentarios (int c, char constanteLeida[], int estado, int columna, int tt[][6]){    //Muestra la constante leida, el estado actual y la tabla de transicion resaltando el nuevo estado segun lo leido
-	
-	//No asustarse, son puros printf (salidas por pantalla)
-	printf("\n\n");
-	system("PAUSE");
-	system("cls");
-	printf("Constante leida por ahora: %s\n", constanteLeida);                                                 //Va imprimiendo la constante total
-	
-	if (c!=',' && c!='|'){
-		printf("\nSe leyo '%c', lo cual corresponde a la columna %i de la tabla",c,columna);                   //Indica el ultimo caracter, y sus consecuencias
-		printf("\nEl estado anterior era %i (designa la fila)", estado);
-		printf("\nEntonces el nuevo estado es: %i  (Resaltado entre parentesis)\n\n", tt[estado][columna-1]);
-        imprimirTabla (estado, columna, tt);
-	}
-	else {
-		if(c=='|'){  printf("\nSe llego al final de archivo, con lo cual la constante finalizo");  }
-		else{ 	  	 printf("\nSe leyo '%c', con lo cual la constante finalizo",c); }
-		printf("\nEstado final: %i", estado);
-		printf("\n\nConclusion:  ");
-	}
-}
-
-void continuar (){    //Una pausa nomas, detalles "esteticos" (para que el abominable clear_screen no domine al mundo evitando que se lea lo que dice en pantalla)
+void continuar (){    //Una pausa nomas, detalles "esteticos"
 	printf("\n\n-----------------------------------------\n");
 	system("PAuSE");
 }
-
-void esquemaAFD(){        //Aprendiendo a dibujar en C  :O
-	printf("\n _____________________________________________________\n");
-	printf("|                                                     |         Imaginar que los estados 1,3,5 y 6 tiene bucle\n");
-	printf("|   Q0----------------->  Q1+                         |         Tambien imaginar que hay una arista\n");
-	printf("|      \'-------.                                      |         desde todos los estados hasta Q6 (con valor \"Otro\")\n");
-	printf("|                \'-----.                              |\n");
-	printf("|                         Q2+ ----------------> Q3+   |         Aristas:\n");
-	printf("|                            \'-------.                |         Q0-Q1: 1 al 9        Bucle Q1: 0 al 9\n");
-	printf("|                                     \'-----.         |         Q0-Q2: 0             Bucle Q3: 0 al 7\n");
-	printf("|   Q6+                   Q5+ <---------------- Q4    |         Q2-Q3: 0 al 7        Bucle Q5: 0 al 9 y A a F     \n");
-	printf("|_____________________________________________________|         Q2-Q4: x o X         Bucle Q6: Cualquier otro caracter\n\n");
-} 
 
 void limpiarFlujoEntrada (){    //Para que no tome un \n como un char que tenes que introducir (y lo saltee como consecuencia)
 	int nl;
@@ -138,7 +75,7 @@ void pedirubicacion (char rutaArchivo[], int abroOGuardo){  //Por si queres abri
     strcat (rutaArchivo, ".txt");						    //Se juntan direccion y nombre y viven felices por siempre. De hijo tienen a la extension .txt  :D   Hermoso final
 }
 
-void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[], void (*comentarios)(int, char[], int, int, int[][6])){
+void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[]){
 	
 	//Automata Finito: los valores de la tabla son los estados, las columnas son las entradas y las filas son las salidas para un mismo estado:
 	
@@ -178,8 +115,6 @@ void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[], void (*come
 			
 			switch (toupper(c)){								   			    //Para evitar los casos en minuscula (no afecta a la variable 'c')
 				case '0':
-					constanteLeida[i]='\0';                                     //Cierra momentaneamente la constante para poder imprimirla correctamente
-					comentarios (c,constanteLeida,estado,1,tablaTransicion);    //Si es el analisis completo, muestra lo que hace el programa
 					estado=tablaTransicion[estado][0];        				    //Entro un cero, corresponde a la primer columna (indice 0) de la tabla, la fila es el estado en el cual se encontraba antes
 					break;
 				case '1':
@@ -189,14 +124,10 @@ void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[], void (*come
 				case '5':
 				case '6':
 				case '7':
-					constanteLeida[i]='\0';                                     //Lo mismo que en case '0'  (y para el resto)
-					comentarios (c,constanteLeida,estado,2,tablaTransicion);
 					estado=tablaTransicion[estado][1];			                //Entro un numero del 0-7, corresponde a la segunda columna (1)
 					break;
 				case '8':
 				case '9':
-					constanteLeida[i]='\0';
-					comentarios (c,constanteLeida,estado,3,tablaTransicion);
 					estado=tablaTransicion[estado][2];			                //Entro un 8 o un 9, corresponde a la tercer columna (2)
 					break;
 				case 'A':
@@ -205,24 +136,16 @@ void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[], void (*come
 				case 'D':
 				case 'E':
 				case 'F':
-					constanteLeida[i]='\0';
-					comentarios (c,constanteLeida,estado,4,tablaTransicion);
 					estado=tablaTransicion[estado][3];			                //Entro una letra de la 'a' a la 'f', corresponde a la cuarta columna (3)
 					break;
 				case 'X':
-					constanteLeida[i]='\0';
-					comentarios (c,constanteLeida,estado,5,tablaTransicion);
 					estado=tablaTransicion[estado][4];			                //Entro una 'x', corresponde a la quinta columna (4)
 					break;
 				default:
-					constanteLeida[i]='\0';
-					comentarios (c,constanteLeida,estado,6,tablaTransicion);
 					estado=tablaTransicion[estado][5];			                //Entro un caracter no valido, corresponde a la sexta columna (5). Esta columna y su estado (5) son de errores. Se entra y no se sale
 			}
 			c = getc(f);                                                        //Realiza un avance dentro de la cadena en progreso
 		}
-		if(feof(f)){c='|';}													    //Para que el comentario de la ultima constante lo haga correctamente
-		comentarios (c,constanteLeida,estado,6,tablaTransicion);
 		constanteLeida[i]='\0';									                //Finaliza la constante
 		i=0;													                //Reinicia el indice para la siguiente cadena
 		estadoFinal=estado;										                //Establece el estado final (mejor dicho, ultimo estado. Puede que no sea final)
@@ -258,50 +181,6 @@ void definirTipoConstante (char rutaArchivoA[], char rutaArchivoG[], void (*come
 	return;
 }
 
-void analisisPasos (char rutaArchivoA[], char rutaArchivoG[]){		//Veamos que sale de esto (un intento de ver el progreso dentro del AFD)
-	
-	//Tenia ganas de poner un porcentaje de carga, estoy probando cosas con el clear screen :)
-	int i = 0;
-	char p = '%';
-	
-	for (i=0; i<101;i++){                                                   //Basicamente, incrementa 'i', lo imprime con un porcentaje al lado y reinicia la pantalla 
-		system("cls");
-		printf("\nBIENVENIDO AL ANALISIS PASO A PASO!\n\n");
-		printf("Cargando...");
-		printf("%i %c \n                                                                             (Mentira, pero asi es mas divertido)\n", i,p);
-		Sleep(1);
-		
-	}
-	
-	printf("Cargado EXITOSO!!\n");
-	system("PAUSE");
-	system("cls");
-	//Fin del porcentaje de carga falso
-	
-	printf("Bueno comenzamos primero con un grafico del automata finito que vamos a utilizar:\n");
-	esquemaAFD();
-	system("PAUSE");
-	printf("\nAhora, presentamos la grandiosa tabla de transicion de dicho automata.\n\n");
-	
-	int tablaTransicion[7][6]={{2,1,1,6,6,6},                     //Primer columna: entro 0
-							  {1,1,1,6,6,6},                      //Segunda columna: entro del 1 al 7
-							  {3,3,6,4,6,6},                      //Tercer columna: entro 8 o 9
-							  {3,3,6,6,6,6},                      //Cuarta columna: entro de la "a" a la "f"
-							  {5,5,5,6,5,6},                      //Quinta columna: entro "x"
-							  {5,5,5,6,5,6},                      //Sexta columna: entro  un valor diferente al resto (Ejemplo, "j")
-							  {6,6,6,6,6,6}};
-							  
-
-	imprimirTabla (10,10,tablaTransicion);                        //Imprime la tabla. 10 y 10 para que no resalte ningun elemento (se ve mas arriba)
-	system("PAUSE");
-	system ("cls");
-
-	printf("Comenzamos con el analisis\n");
-	
-	definirTipoConstante (rutaArchivoA, rutaArchivoG, activarComentarios);						//Llamo a la funcion de analisis con los comentarios activados
-	
-}
-
 int main (){    //Pues el main, que mas?
 
     int opcion;
@@ -326,15 +205,7 @@ int main (){    //Pues el main, que mas?
 				continuar();
 				break;
 			case 3:
-				definirTipoConstante(rutaArchivoA, rutaArchivoG, sinComentarios);
-				continuar();
-				break;
-			case 4:
-				esquemaAFD();                                                               
-				continuar();
-				break;
-			case 5:
-				analisisPasos (rutaArchivoA, rutaArchivoG);                                 //Imprime AFD, Tabla, y detalla lo que hace el programa por pantalla. Estaba aburrido, ok?
+				definirTipoConstante(rutaArchivoA, rutaArchivoG);
 				continuar();
 				break;
 			default:
