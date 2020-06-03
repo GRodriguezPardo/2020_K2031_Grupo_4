@@ -23,7 +23,6 @@ void continuar (){    //Una pausa para que la limpieza de pantalla no suceda ant
 	system("PAUSE");	//Pausa el programa hasta que toques cualquier tecla
 }
 
-
 typedef struct Status{    //Definicion de la estructura Status (cada valor de la tabla de la transicion)
     int siguienteEstado;  //Nomero del nuevo estado que toma el AFP
     char pushPila[3];	  //Caracteres que tiene que pushear a la pila asociada al AFP
