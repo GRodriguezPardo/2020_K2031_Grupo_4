@@ -1881,7 +1881,7 @@ int main() {
 
     FILE* f = fopen("reporte.txt", "w+t");
 
-    yyin = fopen("entrada.txt", "r+t");
+    yyin = fopen("entrada.c", "r+t");
 
     yylex();
 
