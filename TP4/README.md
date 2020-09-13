@@ -1,3 +1,7 @@
+Gramatica utilizada:
+
+https://www.lysator.liu.se/c/ANSI-C-grammar-y.html#storage-class-specifier
+
 Por como esta hecho el Makefile, hay que tener esto en cuenta: 
  
 - Todos los archivos .c van en la carpeta **lib**. Hay que agregar **nombre-de-archivo.o** a la variable **_OBJ**

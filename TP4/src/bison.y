@@ -6,10 +6,18 @@ int yylex();
 int yyerror();
 %}
 
-%token <cadena> DATA_TYPE
+%token <cadena> TYPE_SPECIFIER
 %token <cadena> UNARY_OPERATOR
 %token <cadena> IDENTIFIER
-%token <cadena> DATA_QUALIFIER
+%token <cadena> TYPE_QUALIFIER
+%token <cadena> STORAGE_CLASS
+
+%token <ival> DECIMAL_CONSTANT
+%token <ival> HEX_CONSTANT
+%token <ival> OCTAL_CONSTANT
+%token <fval> FLOAT_CONSTANT
+
+%token <cadena> STRING
 
 %union {
   long ival;
@@ -20,39 +28,48 @@ int yyerror();
 
 %%
 
-/*
-	DECLARACIONES
-*/
-
 declaration:
-   	function_declaration
+		declaration_specifiers init_declarator_list ';'
 ;
 
-function_declaration:
-   	data_qualifier DATA_TYPE IDENTIFIER '(' argument_list ')' ';' {printf("encontrado");}
+declaration_specifiers:
+		STORAGE_CLASS declaration_specifiers
+	|	TYPE_SPECIFIER declaration_specifiers
+	|	TYPE_QUALIFIER declaration_specifiers
+	|	TYPE_SPECIFIER
+	|	TYPE_QUALIFIER
+	|	STORAGE_CLASS
 ;
 
-
-argument_list:
-		argument
-	|	argument_list ',' argument
+init_declarator_list:
+		init_declarator
+	|	init_declarator_list ',' init_declarator
 ;
 
-argument:
-		DATA_TYPE IDENTIFIER
-	|	nothing
+/*ACA FALTA UNA PARTE DE declarator=initializer*/
+init_declarator:
+		declarator
 ;
 
-/*
-	TIPOS DE DATO
-*/
-
-data_qualifier:
-		DATA_QUALIFIER
-	|	nothing
+/*FALTA LA PARTE DE pointer*/
+declarator:
+		direct_declarator
 ;
 
-nothing:
+direct_declarator:
+		IDENTIFIER
+	|	'(' declarator ')'
+	|	direct_declarator '[' constant_expression ']'
+	|	direct_declarator '[' ']'
+	|	direct_declarator '(' ')'
+;
+
+/*Implementado para probar pero no es la BNF correcta*/
+
+constant_expression:
+ 		DECIMAL_CONSTANT
+ 	|	HEX_CONSTANT
+	|	OCTAL_CONSTANT
 ;
 
 %%

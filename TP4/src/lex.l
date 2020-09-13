@@ -13,8 +13,9 @@ LETRA [a-zA-Z]
 IDENTIFICADOR ({LETRA}|"_")({LETRA}|{DIGITO_DECIMAL}|"_")*
 
 TIPO_DATO "void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned"|"struct"|"union"|"enum"
-STORAGE_CLASS "auto"|"register"|"static"|"extern"|"typedef"|"const"|"volatile"
+STORAGE_CLASS "auto"|"register"|"static"|"extern"|"typedef"
 ESTRUCTURA_CONTROL "break"|"else"|"switch"|"case"|"return"|"continue"|"for"|"default"|"goto"|"do"|"if"|"while"
+CALIFICADOR_TIPO "const"|"volatile"
 
 OPERADORES_ARIMETICOS "-"|"+"|"/"|"%"
 OPERADORES_UNARIOS "++"|"--"
@@ -35,7 +36,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 {TIPO_DATO} {
       strcpy(yylval.cadena, yytext);
-      return DATA_TYPE;
+      return TYPE_SPECIFIER;
 }
 {OPERADORES_UNARIOS} {
       strcpy(yylval.cadena, yytext);
@@ -43,13 +44,29 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 {STORAGE_CLASS} {
       strcpy(yylval.cadena, yytext);
-      return DATA_QUALIFIER;
+      return STORAGE_CLASS;
 }
-{ESTRUCTURA_CONTROL} {}
+{CALIFICADOR_TIPO} {
+      strcpy(yylval.cadena, yytext);
+      return TYPE_QUALIFIER;
+}
 
-[1-9]{DIGITO_DECIMAL}* {}
-0{DIGITO_OCTAL}* {}
-0[xX]{DIGITO_HEXADECIMAL}+ {}
+{ESTRUCTURA_CONTROL} {
+
+}
+
+[1-9]{DIGITO_DECIMAL}* {
+      yylval.ival = atoi(yytext);
+      return DECIMAL_CONSTANT;
+}
+0{DIGITO_OCTAL}* {
+      yylval.ival = strtol(yytext, NULL, 10);
+      return OCTAL_CONSTANT;
+}
+0[xX]{DIGITO_HEXADECIMAL}+ {
+      yylval.ival = strtol(yytext, NULL, 10);
+      return HEX_CONSTANT;
+}
 {IDENTIFICADOR} {
       strcpy(yylval.cadena, yytext);
       return IDENTIFIER;
@@ -62,8 +79,13 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 {OPERADORES_ASIGNACION} {}
 {OPERADOR_OTROS} {}
 
-\"([^"]|"\\\"")*\" {}
-'(.|{CARACTERES_ESCAPE})' {}
+\"([^"]|"\\\"")*\" {
+      strcpy(yylval.cadena, yytext);
+      return STRING;
+}
+'(.|{CARACTERES_ESCAPE})' {
+      return yytext[1];
+}
 
 "//".* {}
 
@@ -71,7 +93,10 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 "#include ".* {}
 
-{CONSTANTE_REAL1}|{CONSTANTE_REAL2} {}
+{CONSTANTE_REAL1}|{CONSTANTE_REAL2} {
+      yylval.fval = strtod(yytext, NULL);
+      return FLOAT_CONSTANT;
+}
 {CARACTERES_PUNTUACION} {
       return yytext[0];
 }
