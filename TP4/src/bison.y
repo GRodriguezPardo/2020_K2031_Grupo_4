@@ -2,8 +2,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 int yylex();
 int yyerror();
+
+char buffer[500];
 %}
 
 %token <cadena> TYPE_SPECIFIER
@@ -26,16 +29,19 @@ int yyerror();
 }
 
 
+%type <cadena> declarator direct_declarator init_declarator init_declarator_list declaration_specifiers declaration
+%type <ival> constant_expression
+
 %%
 
 declaration:
-		declaration_specifiers init_declarator_list ';'
+		declaration_specifiers init_declarator_list ';' {printf("%s %s;", $1, $2);}
 ;
 
 declaration_specifiers:
-		STORAGE_CLASS declaration_specifiers
-	|	TYPE_SPECIFIER declaration_specifiers
-	|	TYPE_QUALIFIER declaration_specifiers
+		STORAGE_CLASS declaration_specifiers {sprintf($$ + strlen($1), " %s", $2);}
+	|	TYPE_SPECIFIER declaration_specifiers {sprintf($$ + strlen($1), " %s", $2);}
+	|	TYPE_QUALIFIER declaration_specifiers {sprintf($$ + strlen($1), " %s", $2);}
 	|	TYPE_SPECIFIER
 	|	TYPE_QUALIFIER
 	|	STORAGE_CLASS
@@ -43,7 +49,7 @@ declaration_specifiers:
 
 init_declarator_list:
 		init_declarator
-	|	init_declarator_list ',' init_declarator
+	|	init_declarator_list ',' init_declarator {sprintf($$ + strlen($1), ", %s", $3);}
 ;
 
 /*ACA FALTA UNA PARTE DE declarator=initializer*/
@@ -59,9 +65,9 @@ declarator:
 direct_declarator:
 		IDENTIFIER
 	|	'(' declarator ')'
-	|	direct_declarator '[' constant_expression ']'
-	|	direct_declarator '[' ']'
-	|	direct_declarator '(' ')'
+	|	direct_declarator '[' constant_expression ']' {sprintf($$ + strlen($1), "[%ld]", $3);}
+	|	direct_declarator '[' ']' {strcat($$, "[]");}
+	|	direct_declarator '(' ')' {strcat($$, "()");}
 ;
 
 /*Implementado para probar pero no es la BNF correcta*/
