@@ -29,7 +29,7 @@ char buffer[500];
 }
 
 
-%type <cadena> declarator direct_declarator init_declarator init_declarator_list declaration_specifiers declaration
+%type <cadena> declarator direct_declarator init_declarator init_declarator_list declaration_specifiers declaration identifier_list type_qualifier_list pointer
 %type <ival> constant_expression
 
 %%
@@ -60,16 +60,36 @@ init_declarator:
 /*FALTA LA PARTE DE pointer*/
 declarator:
 		direct_declarator
+	|	pointer direct_declarator {strcat($$, $2);}
 ;
 
+// Aca faltaria el parameter_type_list
 direct_declarator:
 		IDENTIFIER
 	|	'(' declarator ')'
 	|	direct_declarator '[' constant_expression ']' {sprintf($$ + strlen($1), "[%ld]", $3);}
 	|	direct_declarator '[' ']' {strcat($$, "[]");}
 	|	direct_declarator '(' ')' {strcat($$, "()");}
+	|	direct_declarator '(' identifier_list ')' {sprintf($$ + strlen($$), "(%s)", $3);} 
 ;
 
+pointer:
+		'*' {strcpy($$, "*");}
+	|	'*' type_qualifier_list {sprintf($$ + strlen($$), "*%s", $2);}
+	|	'*' pointer {sprintf($$ + strlen($$), "*%s", $2);}
+	|	'*' type_qualifier_list pointer {sprintf($$ + strlen($$), "*%s %s", $2, $3);}
+;
+
+
+type_qualifier_list:
+		TYPE_QUALIFIER
+	|	type_qualifier_list TYPE_QUALIFIER {sprintf($$ + strlen($$), " %s", $2);}
+;
+
+identifier_list:
+		IDENTIFIER
+	|	identifier_list ',' IDENTIFIER {sprintf($$ + strlen($$), ", %s", $3);}
+;
 /*Implementado para probar pero no es la BNF correcta*/
 
 constant_expression:
