@@ -9,7 +9,7 @@ int yyerror();
 char buffer[500];
 %}
 
-%token <cadena> TYPE_SPECIFIER
+%token <cadena> TYPE_SPECIFIER SIZEOF LEFT_OP RIGHT_OP GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
 %token <cadena> UNARY_OPERATOR
 %token <cadena> IDENTIFIER
 %token <cadena> TYPE_QUALIFIER
@@ -30,9 +30,22 @@ char buffer[500];
 
 
 %type <cadena> declarator direct_declarator init_declarator init_declarator_list declaration_specifiers declaration identifier_list type_qualifier_list pointer
-%type <ival> constant_expression
+%type <cadena> assignment_expression conditional_expression logical_or_expression logical_and_expression inclusive_or_expression exclusive_or_expression
+%type <cadena> and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression cast_expression unary_expression
 
 %%
+
+
+
+/*
+	EXPRESIONES
+*/
+
+
+/*
+	FIN PARTE EXPRESIONES
+*/
+
 
 declaration:
 		declaration_specifiers init_declarator_list ';' {printf("%s %s;", $1, $2);}
@@ -57,7 +70,6 @@ init_declarator:
 		declarator
 ;
 
-/*FALTA LA PARTE DE pointer*/
 declarator:
 		direct_declarator
 	|	pointer direct_declarator {strcat($$, $2);}
@@ -67,7 +79,7 @@ declarator:
 direct_declarator:
 		IDENTIFIER
 	|	'(' declarator ')'
-	|	direct_declarator '[' constant_expression ']' {sprintf($$ + strlen($1), "[%ld]", $3);}
+	|	direct_declarator '[' conditional_expression ']' {sprintf($$ + strlen($1), "[%ld]", $3);}
 	|	direct_declarator '[' ']' {strcat($$, "[]");}
 	|	direct_declarator '(' ')' {strcat($$, "()");}
 	|	direct_declarator '(' identifier_list ')' {sprintf($$ + strlen($$), "(%s)", $3);} 
@@ -89,13 +101,6 @@ type_qualifier_list:
 identifier_list:
 		IDENTIFIER
 	|	identifier_list ',' IDENTIFIER {sprintf($$ + strlen($$), ", %s", $3);}
-;
-/*Implementado para probar pero no es la BNF correcta*/
-
-constant_expression:
- 		DECIMAL_CONSTANT
- 	|	HEX_CONSTANT
-	|	OCTAL_CONSTANT
 ;
 
 %%

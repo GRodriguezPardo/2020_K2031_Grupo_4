@@ -35,6 +35,10 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       
       }
 
+"sizeof" {
+      return SIZEOF;
+}
+
 {TIPO_DATO} {
       strcpy(yylval.cadena, yytext);
       return TYPE_SPECIFIER;
@@ -105,6 +109,16 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return yytext[0];
 }
 
+">>"			{return(RIGHT_OP);}
+"<<"			{return(LEFT_OP);}
+"++"			{return(INC_OP);}
+"--"			{return(DEC_OP);}
+"&&"			{return(AND_OP);}
+"||"			{return(OR_OP);}
+"<="			{return(LE_OP);}
+">="			{return(GE_OP);}
+"=="			{return(EQ_OP);}
+"!="			{return(NE_OP);}
 
 " "|\9|"\t" {
       // No hacemos nada
