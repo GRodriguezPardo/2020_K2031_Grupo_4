@@ -10,7 +10,8 @@ ODIR = ./compile
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CFLAGS = -c -o
-DFLAG = 
+DFLAG +=
+DGFLAG +=
 
 CC = gcc
 
@@ -20,10 +21,8 @@ build: message makeFolder flex $(OBJ)
 	@echo "\n\n===== PROGRAMA COMPILADO CON EXITO ====="
 
 debug: DFLAG += --debug
+debug: DGFLAG += -D BDEBUG
 debug: build
-
-output:
-	bison -v ./src/bison.y
 
 message:
 	@echo "\n========== INICIANDO COMPILACION ========="
@@ -51,7 +50,7 @@ bison:
 	bison -d $(DFLAG) ./src/bison.y
 	mv bison.tab.h ./headers
 	@echo "-  Moviendo headers"
-	$(CC) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -ly
+	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -ly
 	@echo "\n===== ARCHIVO BISON GENERADO =====\n"
 
 ./compile/bison.tab.o:

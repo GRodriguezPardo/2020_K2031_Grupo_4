@@ -192,8 +192,8 @@ int yyerror (char *s) {
 }
 
 void main() {
-	#ifdef YYDEBUG
-	//	yydebug = 1;
+	#ifdef BDEBUG
+		yydebug = 1;
 	#endif
 
    yyparse();
