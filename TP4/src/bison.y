@@ -7,22 +7,20 @@
 int yylex();
 int yyerror();
 
-char buffer[500];
+#ifdef BDEBUG
+	int yydebug = 1;
+#endif
+
 %}
 
 %token <cadena> TYPE_SPECIFIER SIZEOF SHIFT_RIGHT SHIFT_LEFT GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
-%token <cadena> UNARY_OPERATOR
-%token <cadena> IDENTIFIER
-%token <cadena> TYPE_QUALIFIER
-%token <cadena> STORAGE_CLASS
+%token <cadena> TYPE_QUALIFIER STORAGE_CLASS IDENTIFIER UNARY_OPERATOR STRING
 %token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW
 
 %token <ival> DECIMAL_CONSTANT
 %token <ival> HEX_CONSTANT
 %token <ival> OCTAL_CONSTANT
 %token <fval> FLOAT_CONSTANT
-
-%token <cadena> STRING
 
 %type <cadena> expresion expresion_asignacion expresion_condicional operador_asignacion expresion_logical_or expresion_logical_and
 %type <cadena> expresion_o_inclusivo expresion_o_excluyente expresion_y expresion_igualdad expresion_relacional expresion_corrimiento
@@ -122,7 +120,7 @@ expresion_multiplicativa:
 		expresion_conversion
 	|	expresion_multiplicativa '*' expresion_conversion {sprintf($$ + strlen($$), " * %s", $3);}
 	|	expresion_multiplicativa '/' expresion_conversion {sprintf($$ + strlen($$), " / %s", $3);}
-	|	expresion_multiplicativa '%' expresion_conversion {sprintf($$ + strlen($$), " % %s", $3);}
+	|	expresion_multiplicativa '%' expresion_conversion {sprintf($$ + strlen($$), " %c %s", 37, $3);}
 ;
 
 expresion_conversion:
@@ -192,9 +190,5 @@ int yyerror (char *s) {
 }
 
 void main() {
-	#ifdef BDEBUG
-		yydebug = 1;
-	#endif
-
    yyparse();
 }

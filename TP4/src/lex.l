@@ -17,11 +17,6 @@ STORAGE_CLASS "auto"|"register"|"static"|"extern"|"typedef"
 ESTRUCTURA_CONTROL "break"|"else"|"switch"|"case"|"return"|"continue"|"for"|"default"|"goto"|"do"|"if"|"while"
 CALIFICADOR_TIPO "const"|"volatile"
 
-OPERADORES_RELACIONALES "=="|"!="|"<"|">"|"<="|">="
-OPERADORES_LOGICOS "&&"|"||"|"!"
-OPERADORES_BIT "<<"|">>"
-OPERADORES_ASIGNACION "+="|"-+"|"*="|"/="|"%="|"<<="|">>="|"&="|"^="|"|="
-
 SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"
 
 CONSTANTE_REAL1 ({DIGITO_DECIMAL}+(e|E)(-|\+)?{DIGITO_DECIMAL}+(f|F|l|L)?)

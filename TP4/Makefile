@@ -10,7 +10,7 @@ ODIR = ./compile
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 CFLAGS = -c -o
-DFLAG +=
+BFLAG += -d
 DGFLAG +=
 
 CC = gcc
@@ -20,7 +20,7 @@ build: message makeFolder flex $(OBJ)
 	$(CC) $(OBJ) $(HEADERS)
 	@echo "\n\n===== PROGRAMA COMPILADO CON EXITO ====="
 
-debug: DFLAG += --debug
+debug: BFLAG += --debug
 debug: DGFLAG += -D BDEBUG
 debug: build
 
@@ -28,6 +28,10 @@ message:
 	@echo "\n========== INICIANDO COMPILACION ========="
 
 makeFolder:
+	@if [ ! -d headers ]; then \
+		mkdir headers; \
+		echo "- Se creo carpeta headers"; \
+	fi
 	@echo "\n\n- CREANDO CARPETA compile"
 	@if [ ! -d compile ]; then \
 		mkdir compile; \
@@ -47,8 +51,8 @@ flex: bison
 	
 bison:
 	@echo "\n\n===== GENERANDO ARCHIVO BISON =====\n"
-	bison -d $(DFLAG) ./src/bison.y
-	mv bison.tab.h ./headers
+	bison $(BFLAG) ./src/bison.y
+	mv bison.tab.h headers
 	@echo "-  Moviendo headers"
 	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -ly
 	@echo "\n===== ARCHIVO BISON GENERADO =====\n"
@@ -73,3 +77,4 @@ clean: cleanHeaders
 	rm -rf ./headers/bison.tab.h
 	rm -rf lex.yy.c
 	rm -rf a.out
+	rm -rf bison.output
