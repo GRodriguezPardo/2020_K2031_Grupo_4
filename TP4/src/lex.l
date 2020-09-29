@@ -17,14 +17,12 @@ STORAGE_CLASS "auto"|"register"|"static"|"extern"|"typedef"
 ESTRUCTURA_CONTROL "break"|"else"|"switch"|"case"|"return"|"continue"|"for"|"default"|"goto"|"do"|"if"|"while"
 CALIFICADOR_TIPO "const"|"volatile"
 
-OPERADORES_UNARIOS "++"|"--"
 OPERADORES_RELACIONALES "=="|"!="|"<"|">"|"<="|">="
 OPERADORES_LOGICOS "&&"|"||"|"!"
 OPERADORES_BIT "<<"|">>"
 OPERADORES_ASIGNACION "+="|"-+"|"*="|"/="|"%="|"<<="|">>="|"&="|"^="|"|="
-OPERADOR_OTROS "->"
 
-SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"
+SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"
 
 CONSTANTE_REAL1 ({DIGITO_DECIMAL}+(e|E)(-|\+)?{DIGITO_DECIMAL}+(f|F|l|L)?)
 CONSTANTE_REAL2 (({DIGITO_DECIMAL}*?\.{DIGITO_DECIMAL}+)|({DIGITO_DECIMAL}+\.))((E|e)(-|\+)?{DIGITO_DECIMAL}+)?(f|F|l|L)?
@@ -34,19 +32,11 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 "/*"[^"/*""*/"]*"*/" {
       
       }
-
-"sizeof" {
-      return SIZEOF;
-}
-
 {TIPO_DATO} {
       strcpy(yylval.cadena, yytext);
       return TYPE_SPECIFIER;
 }
-{OPERADORES_UNARIOS} {
-      strcpy(yylval.cadena, yytext);
-      return UNARY_OPERATOR;
-}
+
 {STORAGE_CLASS} {
       strcpy(yylval.cadena, yytext);
       return STORAGE_CLASS;
@@ -81,11 +71,6 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return IDENTIFIER;
 }
 
-{OPERADORES_LOGICOS} {}
-{OPERADORES_RELACIONALES} {}
-{OPERADORES_BIT} {}
-{OPERADORES_ASIGNACION} {}
-{OPERADOR_OTROS} {}
 
 \"([^"]|"\\\"")*\" {
       strcpy(yylval.cadena, yytext);
@@ -109,19 +94,31 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return yytext[0];
 }
 
-">>"			{return(RIGHT_OP);}
-"<<"			{return(LEFT_OP);}
-"++"			{return(INC_OP);}
-"--"			{return(DEC_OP);}
-"&&"			{return(AND_OP);}
-"||"			{return(OR_OP);}
-"<="			{return(LE_OP);}
-">="			{return(GE_OP);}
-"=="			{return(EQ_OP);}
-"!="			{return(NE_OP);}
+"->" {return(PTR_ARROW);}
+"sizeof" {return(SIZEOF);}
+">>"  {return(SHIFT_RIGHT);}
+"<<"  {return(SHIFT_LEFT);}
+"++"  {return(INC_OP);}
+"--"  {return(DEC_OP);}
+"&&"	{return(AND_OP);}
+"||"  {return(OR_OP);}
+"<="  {return(LE_OP);}
+">="  {return(GE_OP);}
+"=="  {return(EQ_OP);}
+"!="  {return(NE_OP);}
+"+="  {return(SUM_ASSIGN);}       
+"-="  {return(SUB_ASSIGN);}
+"/="  {return(DIV_ASSIGN);}
+"*="  {return(MUL_ASSIGN);}
+"%="  {return(MOD_ASSIGN);}
 
 " "|\9|"\t" {
       // No hacemos nada
+}
+
+"\n" {
+      // Esto es para poder trabajar en consola
+      return 0;
 }
 
 . {
