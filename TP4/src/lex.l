@@ -12,8 +12,8 @@ DIGITO_HEXADECIMAL [a-fA-F0-9]
 LETRA [a-zA-Z]
 IDENTIFICADOR ({LETRA}|"_")({LETRA}|{DIGITO_DECIMAL}|"_")*
 
-TIPO_DATO "void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned"|"struct"|"union"|"enum"
-STORAGE_CLASS "auto"|"register"|"static"|"extern"|"typedef"
+TIPO_DATO "void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned"
+CLASE_ALMACENAMIENTO "auto"|"register"|"static"|"extern"|"typedef"
 ESTRUCTURA_CONTROL "break"|"else"|"switch"|"case"|"return"|"continue"|"for"|"default"|"goto"|"do"|"if"|"while"
 CALIFICADOR_TIPO "const"|"volatile"
 
@@ -27,18 +27,28 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 "/*"[^"/*""*/"]*"*/" {
       
       }
+
+["struct""union"] {
+      strcpy(yylval.cadena, yytext);
+      return STRUCT_UNION
+}
+
+"enum" {
+      return ENUM;
+}
+
 {TIPO_DATO} {
       strcpy(yylval.cadena, yytext);
-      return TYPE_SPECIFIER;
+      return TIPO_DATO;
 }
 
 {STORAGE_CLASS} {
       strcpy(yylval.cadena, yytext);
-      return STORAGE_CLASS;
+      return CLASE_ALMACENAMIENTO;
 }
 {CALIFICADOR_TIPO} {
       strcpy(yylval.cadena, yytext);
-      return TYPE_QUALIFIER;
+      return CALIFICADOR_TIPO;
 }
 
 {SINGLE_OPERATOR} {
@@ -83,7 +93,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 {CONSTANTE_REAL1}|{CONSTANTE_REAL2} {
       yylval.fval = strtod(yytext, NULL);
-      return FLOAT_CONSTANT;
+      return CONSTANTE_REAL;
 }
 {CARACTERES_PUNTUACION} {
       return yytext[0];
@@ -106,6 +116,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 "/="  {return(DIV_ASSIGN);}
 "*="  {return(MUL_ASSIGN);}
 "%="  {return(MOD_ASSIGN);}
+"..." {return(ELLIPSIS);}
 
 " "|\9|"\t" {
       // No hacemos nada

@@ -13,14 +13,15 @@ int yyerror();
 
 %}
 
-%token <cadena> TYPE_SPECIFIER SIZEOF SHIFT_RIGHT SHIFT_LEFT GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
-%token <cadena> TYPE_QUALIFIER STORAGE_CLASS IDENTIFIER UNARY_OPERATOR STRING
-%token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW
+%token <cadena> TIPO_DATO SIZEOF SHIFT_RIGHT SHIFT_LEFT GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
+%token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER UNARY_OPERATOR STRING ENUM
+%token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW STRUCT_UNION ELLIPSIS
+%token <caracter> CONSTANTE_CARACTER
 
 %token <ival> DECIMAL_CONSTANT
 %token <ival> HEX_CONSTANT
 %token <ival> OCTAL_CONSTANT
-%token <fval> FLOAT_CONSTANT
+%token <fval> CONSTANTE_REAL
 
 %type <cadena> expresion expresion_asignacion expresion_condicional operador_asignacion expresion_logical_or expresion_logical_and
 %type <cadena> expresion_o_inclusivo expresion_o_excluyente expresion_y expresion_igualdad expresion_relacional expresion_corrimiento
@@ -31,8 +32,10 @@ int yyerror();
   long ival;
   double fval;
   char cadena[500];
+  char caracter;
 }
 
+%start <expresion>
 
 %%
 /*
@@ -125,7 +128,7 @@ expresion_multiplicativa:
 
 expresion_conversion:
 		expresion_unaria
-	|	'(' TYPE_SPECIFIER ')' expresion_conversion {sprintf($$ + strlen($$), "(%s) %s", $2, $4);}
+	|	'(' TIPO_DATO ')' expresion_conversion {sprintf($$ + strlen($$), "(%s) %s", $2, $4);}
 ;
 
 expresion_unaria:
@@ -134,7 +137,7 @@ expresion_unaria:
 	|	DEC_OP expresion_unaria {sprintf($$ + strlen($$), "--%s", $2);}
 	|	unary_op expresion_conversion {sprintf($$ + strlen($$), "%s %s", $1, $2);}
 	|	SIZEOF expresion_unaria {sprintf($$ + strlen($$), "sizeof %s", $2);}
-	|	SIZEOF '(' TYPE_SPECIFIER ')'	{sprintf($$ + strlen($$), "sizeof(%s)", $3);}
+	|	SIZEOF '(' TIPO_DATO ')'	{sprintf($$ + strlen($$), "sizeof(%s)", $3);}
 ;
 
 unary_op:
@@ -172,9 +175,15 @@ expresion_primaria:
 	|	'(' expresion ')' {sprintf($$ + strlen($$), "(%s)", $2);}
 ;
 
-// Para debugging, no es correcto
+expresion_constante:
+	expresion_condicional
+;
+
+// Ver lo del enum. Si es solo identificador, entonces expresion_primaria ya es suficiente
 constante:
-	DECIMAL_CONSTANT {sprintf($$, "%ld", $1);}
+		DECIMAL_CONSTANT {sprintf($$, "%ld", $1);}
+	|	CONSTANTE_CARACTER {sprintf($$, "%c", $1);}
+	|	CONSTANTE_REAL {sprintf($$, "%lf", $1);}
 ;
 
 /*
@@ -183,6 +192,207 @@ FIN EXPRESION
 
 */
 
+/*
+	DECLARACIONES
+*/
+
+declaracion:
+	especificadores_declaracion lista_declaradores_2
+;
+
+especificadores_declaracion:
+		CLASE_ALMACENAMIENTO especificadores_declaracion
+	|	TIPO_DATO especificadores_declaracion
+	|	CALIFICADOR_TIPO especificadores_declaracion
+;
+
+especificadores_declaracion_2:
+		especificadores_declaracion
+	| /* Nada */
+;
+
+lista_declaradores_2:
+		lista_declaradores
+	|	/* Nada */
+;
+
+lista_declaradores:
+		declarador
+	|	lista_declaradores ',' declarador
+;
+
+declarador:
+		decla
+	|	decla '=' inicializador
+;
+
+inicializador:
+		expresion_asignacion
+	|	'{' lista_inicializadores '}'
+	|	'{' lista_inicializadores ',' '}'
+;
+
+lista_inicializadores:
+		inicializador
+	|	lista_inicializadores ',' inicializador
+;
+
+especificador_struct_union:
+		STRUCT_UNION iden_o_nada '{' lista_declaraciones_struct '}'
+		STRUCT_UNION IDENTIFIER
+;
+
+lista_declaraciones_struct:
+		declaracion_struct
+	|	lista_declaraciones_struct ',' declaracion_struct
+;
+
+declaracion_struct:
+		lista_calificadores declaradores_struct ';'
+;
+
+lista_calificadores:
+		TIPO_DATO lista_calificadores_2
+	|	CALIFICADOR_TIPO lista_calificadores_2
+;
+
+lista_calificadores_2:
+		lista_calificadores
+	|	/* Nada */
+;
+
+declaradores_struct:
+		decla_struct
+	|	declaradores_struct ',' decla_struct
+;
+
+// Falta una parte aca
+decla_struct:
+		decla
+;
+
+decla:
+		puntero declarador_directo
+	|	declarador_directo
+;
+
+puntero:
+		'*' lista_calificadores_tipo_2
+	|	'*' lista_calificadores_tipo_2 puntero
+;
+
+lista_calificadores_tipo_2:
+		lista_calificadores_tipo
+	|	/* Nada */
+;
+
+lista_calificadores_tipo:
+		CALIFICADOR_TIPO
+	|	lista_calificadores_tipo CALIFICADOR_TIPO
+;
+
+// Falta expresion constante en el array
+declarador_directo:
+		IDENTIFIER
+	|	'(' decla ')'
+	|	declarador_directo '[' expresion_constante_2 ']'
+	|	declarador_directo '(' lista_tipos_parametro ')'
+	|	declarador_directo '(' lista_identificadores_2 ')'
+;
+
+
+lista_tipos_parametro:
+		lista_parametros
+	|	lista_parametros ',' ELLIPSIS
+;
+
+lista_parametros:
+		declaracion_parametro
+	|	lista_parametros ',' declaracion_parametro
+;
+
+declaracion_parametro:
+		especificadores_declaracion decla
+	|	especificadores_declaracion declarador_abstracto_2
+;
+
+lista_identificadores_2:
+		lista_identificadores
+	|	/* Nada */
+;
+
+lista_identificadores:
+		IDENTIFIER
+	|	lista_identificadores ',' IDENTIFIER
+;
+
+especificador_enum:
+		ENUM iden_o_nada '{' lista_enumeradores '}'
+	|	ENUM IDENTIFIER
+;
+
+lista_enumeradores:
+		enumerador
+	|	lista_enumeradores ',' enumerador
+;
+
+// constante_enumeracion es tan solo IDENTIFIER
+enumerador:
+		IDENTIFIER
+	|	IDENTIFIER '=' expresion_constante
+;
+
+nombre_typedef:
+	IDENTIFIER
+;
+
+nombre_tipo:
+	lista_calificadores declarador_abstracto_2
+;
+
+declarador_abstracto_2:
+		declarador_abstracto
+	|	/* Nada */
+;
+
+declarador_abstracto:
+		puntero
+	|	puntero_2 declarador_abstracto_directo
+;
+
+puntero_2:
+		puntero
+	|	/* Nada */
+;
+
+declarador_abstracto_directo:
+		'(' declarador_abstracto_directo ')'
+	|	declarador_abstracto_directo_2 '[' expresion_constante_2 ']'
+	|	declarador_abstracto_directo_2 '(' lista_tipos_parametro_2 ')'
+;
+
+declarador_abstracto_directo_2:
+		declarador_abstracto
+	|	/* Nada */
+;
+
+expresion_constante_2:
+		expresion_constante
+	|	/* Nada */
+;
+
+lista_tipos_parametro_2:
+		lista_tipos_parametro
+	|	/* Nada */
+;
+
+iden_o_nada:
+		IDENTIFIER
+	|	/* Nada */
+
+/*
+	FIN SENTENCIAS
+*/
 %%
 
 int yyerror (char *s) {
