@@ -14,7 +14,7 @@ int yyerror();
 %}
 
 %token <cadena> TIPO_DATO SIZEOF SHIFT_RIGHT SHIFT_LEFT GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
-%token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER UNARY_OPERATOR STRING ENUM
+%token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER STRING ENUM
 %token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW STRUCT_UNION ELLIPSIS
 %token <caracter> CONSTANTE_CARACTER
 %token IF ELSE SWITCH WHILE DO FOR CASE DEFAULT CONTINUE BREAK RETURN GOTO
@@ -27,7 +27,14 @@ int yyerror();
 %type <cadena> expresion expresion_asignacion expresion_condicional operador_asignacion expresion_logical_or expresion_logical_and
 %type <cadena> expresion_o_inclusivo expresion_o_excluyente expresion_y expresion_igualdad expresion_relacional expresion_corrimiento
 %type <cadena> expresion_aditiva expresion_multiplicativa expresion_conversion expresion_unaria unary_op expresion_sufijo lista_argumentos
-%type <cadena> expresion_primaria constante nombre_tipo
+%type <cadena> expresion_primaria constante nombre_tipo declaracion especificadores_declaracion especificadores_declaracion_2 lista_declaradores
+%type <cadena> inicializador_declarador especificador_tipo especificador_struct_union lista_declaraciones_struct declaracion_struct lista_especificador_calificador
+%type <cadena> opt_lista_especificador_calificador lista_declaradores_struct declarador_struct especificador_enum lista_enumerador
+%type <cadena> enumerador declarador declarador_directo puntero puntero_2 opt_puntero lista_calificador_tipo lista_tipo_parametro 
+%type <cadena> lista_parametro declaracion_parametro opt_declaracion_parametro lista_identificadores opt_nombre_tipo declarador_abstracto
+%type <cadena> declarador_abstracto_directo inicializador lista_inicializador sentencia sentencia_etiquetada sentencia_compuesta lista_declaraciones
+%type <cadena> lista_sentencia sentencia_expresion sentencia_seleccion opcion_else sentencia_iteracion sentencia_salto unidad_traduccion declaracion_externa
+%type <cadena> declaracion_funcion expresion_constante
 
 %union {
   long ival;
@@ -35,6 +42,8 @@ int yyerror();
   char cadena[500];
   char caracter;
 }
+
+%right CALIFICADOR_TIPO
 
 %start unidad_traduccion
 
@@ -174,8 +183,8 @@ operador_asignacion
 ;
 
 expresion
-	:	expresion_asignacion {printf("%s", $1);}
-	|	expresion ',' expresion_asignacion
+	:	expresion_asignacion
+	|	expresion ',' expresion_asignacion	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 expresion_constante
@@ -204,27 +213,29 @@ FIN EXPRESION
 */
 
 declaracion
-	:	especificadores_declaracion ';'
-	|	especificadores_declaracion lista_declaradores ';'
+	:	especificadores_declaracion ';' {strcat($$, ";");}
+	|	especificadores_declaracion lista_declaradores ';' {sprintf($$ + strlen($$), " %s;", $2);}
 ;
 
 especificadores_declaracion
-	:	CLASE_ALMACENAMIENTO
-	|	CLASE_ALMACENAMIENTO especificadores_declaracion
-	|	especificador_tipo
-	|	especificador_tipo especificadores_declaracion
-	|	CALIFICADOR_TIPO
-	|	CALIFICADOR_TIPO especificadores_declaracion
+	:	CLASE_ALMACENAMIENTO especificadores_declaracion_2	{sprintf($$, "%s %s", $1, $2);}
+	|	especificador_tipo especificadores_declaracion_2	{sprintf($$, "%s %s", $1, $2);}
+	|	CALIFICADOR_TIPO especificadores_declaracion_2	{sprintf($$, "%s %s", $1, $2);}
+;
+
+especificadores_declaracion_2
+	:
+	|	especificadores_declaracion
 ;
 
 lista_declaradores
 	:	inicializador_declarador
-	|	lista_declaradores ',' inicializador_declarador
+	|	lista_declaradores ',' inicializador_declarador		{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 inicializador_declarador
 	:	declarador
-	|	declarador '=' inicializador
+	|	declarador '=' inicializador	{sprintf($$ + strlen($$), " = %s", $3);}
 ;
 
 especificador_tipo
@@ -235,134 +246,152 @@ especificador_tipo
 ;
 
 especificador_struct_union
-	:	STRUCT_UNION IDENTIFIER '{' lista_declaraciones_struct '}'
-	|	STRUCT_UNION '{' lista_declaraciones_struct '}'
-	|	STRUCT_UNION IDENTIFIER
+	:	STRUCT_UNION IDENTIFIER '{' lista_declaraciones_struct '}'	{sprintf($$ + strlen($$), " %s {%s}", $2, $4);}
+	|	STRUCT_UNION '{' lista_declaraciones_struct '}'		{sprintf($$ + strlen($$), "{%s}", $3);}
+	|	STRUCT_UNION IDENTIFIER		{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 lista_declaraciones_struct
 	:	declaracion_struct
-	|	lista_declaraciones_struct ',' declaracion_struct
+	|	lista_declaraciones_struct ',' declaracion_struct	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 declaracion_struct
-	:	lista_especificador_calificador lista_declaradores_struct ';'
+	:	lista_especificador_calificador lista_declaradores_struct ';'	{sprintf($$ + strlen($$), " %s;", $2);}
 ;
 
 lista_especificador_calificador
-	:	especificador_tipo lista_declaraciones_struct
-	|	especificador_tipo
-	|	CALIFICADOR_TIPO lista_declaraciones_struct
-	|	CALIFICADOR_TIPO
+	:	especificador_tipo opt_lista_especificador_calificador	{sprintf($$ + strlen($$), " %s", $2);}
+	|	CALIFICADOR_TIPO opt_lista_especificador_calificador	{sprintf($$ + strlen($$), " %s", $2);}
+;
+
+opt_lista_especificador_calificador
+	:
+	|	lista_declaraciones_struct
 ;
 
 lista_declaradores_struct
 	:	declarador_struct
-	|	lista_declaradores_struct ',' declarador_struct
+	|	lista_declaradores_struct ',' declarador_struct	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 declarador_struct
 	:	declaracion
-	|	':' expresion_constante
-	|	declarador ':' expresion_constante
+	|	':' expresion_constante	{sprintf($$, ": %s", $2);}
+	|	declarador ':' expresion_constante	{sprintf($$ + strlen($$), ": %s", $3);}
 ;
 
 especificador_enum
-	:	ENUM '{' lista_enumerador '}'
-	|	ENUM IDENTIFIER '{' lista_enumerador '}'
-	|	ENUM IDENTIFIER
+	:	ENUM '{' lista_enumerador '}'	{sprintf($$ + strlen($$), "{%s}", $3);}
+	|	ENUM IDENTIFIER '{' lista_enumerador '}'	{sprintf($$ + strlen($$), "{%s}", $4);}
+	|	ENUM IDENTIFIER	{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 lista_enumerador
 	:	enumerador
-	|	lista_enumerador ',' enumerador
+	|	lista_enumerador ',' enumerador	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 enumerador
 	:	IDENTIFIER
-	|	IDENTIFIER '=' expresion_constante
+	|	IDENTIFIER '=' expresion_constante {sprintf($$, "%s = %s", $1, $3);}
 ;
 
 declarador
-	:	puntero declarador_directo
+	:	puntero declarador_directo {sprintf($$ + strlen($$), " %s", $2);}
 	|	declarador_directo
 ;
 
 declarador_directo
-	:	IDENTIFIER
-	|	'(' declarador ')'
-	|	declarador_directo '[' expresion_constante ']'
-	|	declarador_directo '[' ']'
-	|	declarador_directo '(' lista_tipo_parametro ')'
-	|	declarador_directo '(' lista_identificadores ')'
-	|	declarador_directo '(' ')'
+	:	IDENTIFIER	
+	|	'(' declarador ')'	{sprintf($$, "(%s)", $2);}
+	|	declarador_directo '[' expresion_constante ']'	{sprintf($$ + strlen($$), "[%s]", $3);}
+	|	declarador_directo '[' ']'		{strcat($$, "[]");}
+	|	declarador_directo '(' lista_tipo_parametro ')'	{sprintf($$ + strlen($$), "(%s)", $3);}
+	|	declarador_directo '(' lista_identificadores ')'	{sprintf($$ + strlen($$), "(%s)", $3);}
+	|	declarador_directo '(' ')'	{strcat($$, "()");}
 ;
 
 puntero
-	:	'*'
-	|	'*' lista_calificador_tipo
-	|	'*' puntero
-	|	'*' lista_calificador_tipo puntero
+	:	'*' opt_puntero	{sprintf($$, "* %s", $2);}
+;
+
+puntero_2
+	:
+	|	puntero
+;
+
+opt_puntero
+	:	lista_calificador_tipo puntero_2	{sprintf($$ + strlen($$), " %s", $2);}
+	|	puntero_2
 ;
 
 lista_calificador_tipo
 	:	CALIFICADOR_TIPO
-	|	lista_calificador_tipo CALIFICADOR_TIPO
+	|	lista_calificador_tipo CALIFICADOR_TIPO {sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 lista_tipo_parametro
 	:	lista_parametro
-	|	lista_parametro ',' ELLIPSIS
+	|	lista_parametro ',' ELLIPSIS	{strcat($$, ", ...");}
 ;
 
 lista_parametro
 	:	declaracion_parametro
-	|	lista_parametro ',' declaracion_parametro
+	|	lista_parametro ',' declaracion_parametro	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 declaracion_parametro
-	:	especificadores_declaracion declarador
-	|	especificadores_declaracion declarador_abstracto
-	|	especificadores_declaracion
+	:	especificadores_declaracion opt_declaracion_parametro	{sprintf($$ + strlen($$), " %s", $2);}
+;
+
+opt_declaracion_parametro
+	:
+	|	declarador
+	|	declarador_abstracto
 ;
 
 lista_identificadores
 	:	IDENTIFIER
-	|	lista_identificadores ',' IDENTIFIER
+	|	lista_identificadores ',' IDENTIFIER	{sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 nombre_tipo
-	:	lista_especificador_calificador
-	|	lista_especificador_calificador declarador_abstracto
+	:	lista_especificador_calificador opt_nombre_tipo 	{sprintf($$ + strlen($$), " %s", $2);}
+;
+
+opt_nombre_tipo
+	:	{}
+	| declarador_abstracto
 ;
 
 declarador_abstracto
 	:	puntero
 	|	declarador_abstracto_directo
-	|	puntero declarador_abstracto_directo
+	|	puntero declarador_abstracto_directo {sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 declarador_abstracto_directo
-	: '(' declarador_abstracto ')'
-	| '[' ']'
-	| '[' expresion_constante ']'
-	| declarador_abstracto_directo '[' ']'
-	| declarador_abstracto_directo '[' expresion_constante ']'
-	| '(' ')'
-	| '(' lista_tipo_parametro ')'
-	| declarador_abstracto_directo '(' ')'
-	| declarador_abstracto_directo '(' lista_tipo_parametro ')'
+	: '(' declarador_abstracto ')'	{sprintf($$, "(%s)", $2);}
+	| '[' ']'	{strcpy($$, "[]");}
+	| '[' expresion_constante ']'		{sprintf($$, "[%s]", $2);}
+	| declarador_abstracto_directo '[' ']'		{strcat($$, "[]");}
+	| declarador_abstracto_directo '[' expresion_constante ']'	{sprintf($$ + strlen($$), "[%s]", $3);}
+	| '(' ')'	{strcpy($$, "()");}
+	| '(' lista_tipo_parametro ')'	{sprintf($$ + strlen($$), "(%s)", $2);}
+	| declarador_abstracto_directo '(' ')'	{strcat($$, "()");}
+	| declarador_abstracto_directo '(' lista_tipo_parametro ')' {sprintf($$ + strlen($$), "(%s)", $3);}
 ;
 
 inicializador
 	:	expresion_asignacion
-	|	'{' lista_inicializador '}'
-	|	'{' lista_inicializador ',' '}'
+	|	'{' lista_inicializador '}'	{sprintf($$, "{ %s }", $2);}
+	|	'{' lista_inicializador ',' '}' {sprintf($$, "{ %s , }", $2);}
 ;
 
 lista_inicializador
 	:	inicializador
-	|	lista_inicializador ',' inicializador
+	|	lista_inicializador ',' inicializador {sprintf($$ + strlen($$), " , %s", $3);}
 ;
 
 /*
@@ -393,46 +422,50 @@ sentencia_etiquetada
 ;
 
 sentencia_compuesta
-	:	'{' '}'
-	|	'{' lista_sentencia '}'
-	|	'{' lista_declaraciones '}'
-	|	'{' lista_declaraciones lista_sentencia '}'
+	:	'{' '}'	{strcpy($$, "{}");}
+	|	'{' lista_sentencia '}'	{sprintf($$, "{%s}", $2);}
+	|	'{' lista_declaraciones '}'	{sprintf($$, "{%s}", $2);}
+	|	'{' lista_declaraciones lista_sentencia '}'	{sprintf($$, "{%s %s}", $2, $3);}
 ;
 
 lista_declaraciones
 	:	declaracion
-	|	lista_declaraciones declaracion
+	|	lista_declaraciones declaracion	{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 lista_sentencia
 	:	sentencia
-	|	lista_sentencia sentencia
+	|	lista_sentencia sentencia	{sprintf($$, " %s", $2);}
 ;
 
 sentencia_expresion
-	:	';'
-	|	expresion ';'
+	:	';'	{strcpy($$, ";");}
+	|	expresion ';'	{strcat($$, ";");}
 ;
 
 sentencia_seleccion
-	:	IF '(' expresion ')' sentencia
-	|	IF '(' expresion ')' sentencia ELSE sentencia
-	|	SWITCH '(' expresion ')' sentencia
+	:	IF '(' expresion ')' sentencia opcion_else	{sprintf($$, "if (%s) %s %s", $3, $5, $6);}
+	|	SWITCH '(' expresion ')' sentencia	{sprintf($$, "switch (%s) %s", $3, $5);}
+;
+
+opcion_else
+	:	{}
+	|	ELSE sentencia	{sprintf($$, "else %s", $2);}
 ;
 
 sentencia_iteracion
-	:	WHILE '(' expresion ')' sentencia
-	|	DO sentencia WHILE '(' expresion ')' ';'
-	|	FOR '(' sentencia_expresion sentencia_expresion ')' sentencia
-	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia
+	:	WHILE '(' expresion ')' sentencia	{sprintf($$, "while(%s) %s", $3, $5);}
+	|	DO sentencia WHILE '(' expresion ')' ';'	{sprintf($$, "do %s while (%s)", $2, $5);}
+	|	FOR '(' sentencia_expresion sentencia_expresion ')' sentencia	{sprintf($$, "for(%s%s) %s", $3, $4, $6);}
+	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
 ;
 
 sentencia_salto
-	:	GOTO IDENTIFIER ';'
-	|	CONTINUE ';'
-	|	BREAK ';'
-	|	RETURN ';'
-	|	RETURN expresion ';'
+	:	GOTO IDENTIFIER ';'	{sprintf($$, "goto %s;", $2);}
+	|	CONTINUE ';'	{strcpy($$, "continue;");}
+	|	BREAK ';'	{strcpy($$, "break;");}
+	|	RETURN ';'	{strcpy($$, "return;");}
+	|	RETURN expresion ';'		{sprintf($$, "return %s;", $2);}
 ;
 
 unidad_traduccion
@@ -441,15 +474,15 @@ unidad_traduccion
 ;
 
 declaracion_externa
-	:	declaracion_funcion
+	:	declaracion_funcion {printf("%s", $$);}
 	|	declaracion
 ;
 
 declaracion_funcion
-	:	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta
-	|	especificadores_declaracion declarador sentencia_compuesta
-	|	declarador lista_declaraciones sentencia_compuesta
-	|	declarador sentencia_compuesta
+	:	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
+	|	especificadores_declaracion declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 %%

@@ -63,6 +63,9 @@ bison:
 ./compile/%.o: $(LDIR)/%.c
 	$(CC) $(CFLAGS) $@ $<
 
+output:
+	bison -v ./src/bison.y
+
 .PHONY: clean
 
 # -rf esta para que no haya errores si el archivo no existe
