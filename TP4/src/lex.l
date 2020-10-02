@@ -14,7 +14,6 @@ IDENTIFICADOR ({LETRA}|"_")({LETRA}|{DIGITO_DECIMAL}|"_")*
 
 TIPO_DATO "void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned"
 CLASE_ALMACENAMIENTO "auto"|"register"|"static"|"extern"|"typedef"
-ESTRUCTURA_CONTROL "break"|"else"|"switch"|"case"|"return"|"continue"|"for"|"default"|"goto"|"do"|"if"|"while"
 CALIFICADOR_TIPO "const"|"volatile"
 
 SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"
@@ -30,7 +29,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 ["struct""union"] {
       strcpy(yylval.cadena, yytext);
-      return STRUCT_UNION
+      return STRUCT_UNION;
 }
 
 "enum" {
@@ -42,7 +41,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return TIPO_DATO;
 }
 
-{STORAGE_CLASS} {
+{CLASE_ALMACENAMIENTO} {
       strcpy(yylval.cadena, yytext);
       return CLASE_ALMACENAMIENTO;
 }
@@ -53,10 +52,6 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 {SINGLE_OPERATOR} {
       return yytext[0]; 
-}
-
-{ESTRUCTURA_CONTROL} {
-
 }
 
 [1-9]{DIGITO_DECIMAL}* {
@@ -71,11 +66,6 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       yylval.ival = strtol(yytext, NULL, 10);
       return HEX_CONSTANT;
 }
-{IDENTIFICADOR} {
-      strcpy(yylval.cadena, yytext);
-      return IDENTIFIER;
-}
-
 
 \"([^"]|"\\\"")*\" {
       strcpy(yylval.cadena, yytext);
@@ -117,6 +107,23 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 "*="  {return(MUL_ASSIGN);}
 "%="  {return(MOD_ASSIGN);}
 "..." {return(ELLIPSIS);}
+"if"  {return(IF);}
+"else"      {return(ELSE);}
+"switch"    {return(SWITCH);}
+"while"     {return(WHILE);}
+"do"        {return(DO);}
+"for"       {return(FOR);}
+"case"      {return(CASE);}
+"default"   {return(DEFAULT);}
+"continue"  {return(CONTINUE);}
+"break"     {return(BREAK);}
+"return"    {return(RETURN);}
+"goto"      {return(GOTO);}
+
+{IDENTIFICADOR} {
+      strcpy(yylval.cadena, yytext);
+      return IDENTIFIER;
+}
 
 " "|\9|"\t" {
       // No hacemos nada

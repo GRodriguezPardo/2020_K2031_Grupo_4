@@ -17,6 +17,7 @@ int yyerror();
 %token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER UNARY_OPERATOR STRING ENUM
 %token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW STRUCT_UNION ELLIPSIS
 %token <caracter> CONSTANTE_CARACTER
+%token IF ELSE SWITCH WHILE DO FOR CASE DEFAULT CONTINUE BREAK RETURN GOTO
 
 %token <ival> DECIMAL_CONSTANT
 %token <ival> HEX_CONSTANT
@@ -26,7 +27,7 @@ int yyerror();
 %type <cadena> expresion expresion_asignacion expresion_condicional operador_asignacion expresion_logical_or expresion_logical_and
 %type <cadena> expresion_o_inclusivo expresion_o_excluyente expresion_y expresion_igualdad expresion_relacional expresion_corrimiento
 %type <cadena> expresion_aditiva expresion_multiplicativa expresion_conversion expresion_unaria unary_op expresion_sufijo lista_argumentos
-%type <cadena> expresion_primaria constante
+%type <cadena> expresion_primaria constante nombre_tipo
 
 %union {
   long ival;
@@ -35,7 +36,7 @@ int yyerror();
   char caracter;
 }
 
-%start <expresion>
+%start unidad_traduccion
 
 %%
 /*
@@ -44,117 +45,20 @@ int yyerror();
 
 */
 
-expresion:
-		expresion_asignacion {printf("%s", $1);}
-	|	expresion ',' expresion_asignacion
-;
-
-expresion_asignacion:
-		expresion_condicional
-	|	expresion_unaria operador_asignacion expresion_asignacion {sprintf($$ + strlen($$), " %s %s", $2, $3);}
-;
-
-// Aca falta el ternario
-expresion_condicional:
-		expresion_logical_or
-;
-
-operador_asignacion:	
-		'='	{strcpy($$, "=");}
-	|	SUM_ASSIGN {strcpy($$, "+=");}
-	|	SUB_ASSIGN {strcpy($$, "-=");}
-	|	MUL_ASSIGN {strcpy($$, "*=");}
-	|	DIV_ASSIGN {strcpy($$, "/=");}
-	|	MOD_ASSIGN {strcpy($$, "%=");}
-;
-
-expresion_logical_or:
-		expresion_logical_and
-	|	expresion_logical_or OR_OP expresion_logical_and {sprintf($$ + strlen($$), " %s %s", "||", $3);}
-;
-
-expresion_logical_and:
-		expresion_o_inclusivo
-	|	expresion_logical_and AND_OP expresion_o_inclusivo {sprintf($$ + strlen($$), " %s %s", "&&", $3);}
-;
-
-expresion_o_inclusivo:
-		expresion_o_excluyente
-	|	expresion_o_excluyente '|' expresion_y {sprintf($$ + strlen($$), " | %s", $3);}
-;
-
-expresion_o_excluyente:
-		expresion_y
-	|	expresion_o_excluyente '^' expresion_y {sprintf($$ + strlen($$), " ^ %s", $3);}
-;
-
-expresion_y:
-		expresion_igualdad
-	|	expresion_y '&' expresion_igualdad {sprintf($$ + strlen($$), " & %s", $3);}
-;
-
-expresion_igualdad:
-		expresion_relacional
-	|	expresion_igualdad EQ_OP expresion_relacional {sprintf($$ + strlen($$), " %s %s", "==", $3);}
-	|	expresion_igualdad NE_OP expresion_relacional {sprintf($$ + strlen($$), " %s %s", "!=", $3);}
-;
-
-expresion_relacional:
-		expresion_corrimiento
-		|	expresion_relacional '<' expresion_corrimiento {sprintf($$ + strlen($$), " < %s", $3);}
-		|	expresion_relacional '>' expresion_corrimiento {sprintf($$ + strlen($$), " > %s", $3);}
-	|	expresion_relacional LE_OP expresion_corrimiento {sprintf($$ + strlen($$), " %s %s", "<=", $3);}
-	|	expresion_relacional GE_OP expresion_corrimiento {sprintf($$ + strlen($$), " %s %s", ">=", $3);}
-;
-
-expresion_corrimiento:
-		expresion_aditiva
-	|	expresion_corrimiento SHIFT_LEFT expresion_aditiva {sprintf($$ + strlen($$), " %s %s", "<<", $3);}
-	|	expresion_corrimiento SHIFT_RIGHT expresion_aditiva {sprintf($$ + strlen($$), " %s %s", ">>", $3);}
-;
-
-expresion_aditiva:
-		expresion_multiplicativa
-	|	expresion_aditiva '+' expresion_multiplicativa {sprintf($$ + strlen($$), " + %s", $3);}
-	|	expresion_aditiva '-' expresion_multiplicativa {sprintf($$ + strlen($$), " - %s", $3);}
-;
-
-expresion_multiplicativa:
-		expresion_conversion
-	|	expresion_multiplicativa '*' expresion_conversion {sprintf($$ + strlen($$), " * %s", $3);}
-	|	expresion_multiplicativa '/' expresion_conversion {sprintf($$ + strlen($$), " / %s", $3);}
-	|	expresion_multiplicativa '%' expresion_conversion {sprintf($$ + strlen($$), " %c %s", 37, $3);}
-;
-
-expresion_conversion:
-		expresion_unaria
-	|	'(' TIPO_DATO ')' expresion_conversion {sprintf($$ + strlen($$), "(%s) %s", $2, $4);}
-;
-
-expresion_unaria:
-		expresion_sufijo
-	|	INC_OP expresion_unaria {sprintf($$ + strlen($$), "++%s", $2);}
-	|	DEC_OP expresion_unaria {sprintf($$ + strlen($$), "--%s", $2);}
-	|	unary_op expresion_conversion {sprintf($$ + strlen($$), "%s %s", $1, $2);}
-	|	SIZEOF expresion_unaria {sprintf($$ + strlen($$), "sizeof %s", $2);}
-	|	SIZEOF '(' TIPO_DATO ')'	{sprintf($$ + strlen($$), "sizeof(%s)", $3);}
-;
-
-unary_op:
-		'&' {strcat($$, "$");}
-	|	'*' {strcpy($$, "*");}
-	|	'+' {strcat($$, "+");}
-	|	'-' {strcat($$, "-");}
-	|	'~' {strcat($$, "~");}
-	|	'!' {strcat($$, "!");}
+expresion_primaria
+	:	IDENTIFIER
+	|	constante
+	|	STRING
+	|	'(' expresion ')' {sprintf($$ + strlen($$), "(%s)", $2);}
 ;
 
 /*
 	en la regla 1 se va a printear dos veces. Esto es esperado de bison ya que es una expresion
 	adentro de otra expresion
 */
-expresion_sufijo:
-		expresion_primaria
+
+expresion_sufijo
+	:	expresion_primaria
 	|	expresion_sufijo '[' expresion ']' {sprintf($$ + strlen($$), "[%s]", $3);}
 	|	expresion_sufijo '(' lista_argumentos ')' {sprintf($$ + strlen($$), "(%s)", $3);}
 	|	expresion_sufijo '.' IDENTIFIER {sprintf($$ + strlen($$), ".%s", $3);}
@@ -163,27 +67,128 @@ expresion_sufijo:
 	|	expresion_sufijo DEC_OP {strcat($$, "--");}
 ;
 
-lista_argumentos:
-		expresion_asignacion
+lista_argumentos
+	:	expresion_asignacion
 	|	lista_argumentos ',' expresion_asignacion {sprintf($$ + strlen($$), "%s, %s", $1, $3);}
 ;
 
-expresion_primaria:
-		IDENTIFIER
-	|	constante
-	|	STRING
-	|	'(' expresion ')' {sprintf($$ + strlen($$), "(%s)", $2);}
+expresion_unaria
+	:	expresion_sufijo
+	|	INC_OP expresion_unaria {sprintf($$ + strlen($$), "++%s", $2);}
+	|	DEC_OP expresion_unaria {sprintf($$ + strlen($$), "--%s", $2);}
+	|	unary_op expresion_conversion {sprintf($$ + strlen($$), "%s %s", $1, $2);}
+	|	SIZEOF expresion_unaria {sprintf($$ + strlen($$), "sizeof %s", $2);}
+	|	SIZEOF '(' nombre_tipo ')'	{sprintf($$ + strlen($$), "sizeof(%s)", $3);}
 ;
 
-expresion_constante:
-	expresion_condicional
+unary_op
+	:	'&' {strcat($$, "$");}
+	|	'*' {strcpy($$, "*");}
+	|	'+' {strcat($$, "+");}
+	|	'-' {strcat($$, "-");}
+	|	'~' {strcat($$, "~");}
+	|	'!' {strcat($$, "!");}
+;
+
+expresion_conversion
+	:	expresion_unaria
+	|	'(' nombre_tipo ')' expresion_conversion {sprintf($$ + strlen($$), "(%s) %s", $2, $4);}
+;
+
+expresion_multiplicativa
+	:	expresion_conversion
+	|	expresion_multiplicativa '*' expresion_conversion {sprintf($$ + strlen($$), " * %s", $3);}
+	|	expresion_multiplicativa '/' expresion_conversion {sprintf($$ + strlen($$), " / %s", $3);}
+	|	expresion_multiplicativa '%' expresion_conversion {sprintf($$ + strlen($$), " %c %s", 37, $3);}
+;
+
+expresion_aditiva
+	:	expresion_multiplicativa
+	|	expresion_aditiva '+' expresion_multiplicativa {sprintf($$ + strlen($$), " + %s", $3);}
+	|	expresion_aditiva '-' expresion_multiplicativa {sprintf($$ + strlen($$), " - %s", $3);}
+;
+
+expresion_corrimiento
+	:	expresion_aditiva
+	|	expresion_corrimiento SHIFT_LEFT expresion_aditiva {sprintf($$ + strlen($$), " %s %s", "<<", $3);}
+	|	expresion_corrimiento SHIFT_RIGHT expresion_aditiva {sprintf($$ + strlen($$), " %s %s", ">>", $3);}
+;
+
+expresion_relacional
+	:	expresion_corrimiento
+	|	expresion_relacional '<' expresion_corrimiento {sprintf($$ + strlen($$), " < %s", $3);}
+	|	expresion_relacional '>' expresion_corrimiento {sprintf($$ + strlen($$), " > %s", $3);}
+	|	expresion_relacional LE_OP expresion_corrimiento {sprintf($$ + strlen($$), " %s %s", "<=", $3);}
+	|	expresion_relacional GE_OP expresion_corrimiento {sprintf($$ + strlen($$), " %s %s", ">=", $3);}
+;
+
+expresion_igualdad
+	:	expresion_relacional
+	|	expresion_igualdad EQ_OP expresion_relacional {sprintf($$ + strlen($$), " %s %s", "==", $3);}
+	|	expresion_igualdad NE_OP expresion_relacional {sprintf($$ + strlen($$), " %s %s", "!=", $3);}
+;
+
+expresion_y
+	:	expresion_igualdad
+	|	expresion_y '&' expresion_igualdad {sprintf($$ + strlen($$), " & %s", $3);}
+;
+
+expresion_o_excluyente
+	:	expresion_y
+	|	expresion_o_excluyente '^' expresion_y {sprintf($$ + strlen($$), " ^ %s", $3);}
+;
+
+expresion_o_inclusivo
+	:	expresion_o_excluyente
+	|	expresion_o_excluyente '|' expresion_y {sprintf($$ + strlen($$), " | %s", $3);}
+;
+
+expresion_logical_and
+	:	expresion_o_inclusivo
+	|	expresion_logical_and AND_OP expresion_o_inclusivo {sprintf($$ + strlen($$), " %s %s", "&&", $3);}
+;
+
+expresion_logical_or
+	:	expresion_logical_and
+	|	expresion_logical_or OR_OP expresion_logical_and {sprintf($$ + strlen($$), " %s %s", "||", $3);}
+;
+
+// Aca falta el ternario
+expresion_condicional
+	:	expresion_logical_or
+	|	expresion_logical_or '?' expresion ':' expresion_condicional
+;
+
+expresion_asignacion
+	:	expresion_condicional
+	|	expresion_unaria operador_asignacion expresion_asignacion {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+;
+
+operador_asignacion
+	:	'='	{strcpy($$, "=");}
+	|	SUM_ASSIGN {strcpy($$, "+=");}
+	|	SUB_ASSIGN {strcpy($$, "-=");}
+	|	MUL_ASSIGN {strcpy($$, "*=");}
+	|	DIV_ASSIGN {strcpy($$, "/=");}
+	|	MOD_ASSIGN {strcpy($$, "%=");}
+;
+
+expresion
+	:	expresion_asignacion {printf("%s", $1);}
+	|	expresion ',' expresion_asignacion
+;
+
+expresion_constante
+	: expresion_condicional
 ;
 
 // Ver lo del enum. Si es solo identificador, entonces expresion_primaria ya es suficiente
-constante:
-		DECIMAL_CONSTANT {sprintf($$, "%ld", $1);}
+constante
+	:	DECIMAL_CONSTANT {sprintf($$, "%ld", $1);}
 	|	CONSTANTE_CARACTER {sprintf($$, "%c", $1);}
 	|	CONSTANTE_REAL {sprintf($$, "%lf", $1);}
+	|	OCTAL_CONSTANT {sprintf($$, "%ld", $1);}
+	|	HEX_CONSTANT {sprintf($$, "%ld", $1);}
 ;
 
 /*
@@ -193,206 +198,260 @@ FIN EXPRESION
 */
 
 /*
+
 	DECLARACIONES
+
 */
 
-declaracion:
-	especificadores_declaracion lista_declaradores_2
+declaracion
+	:	especificadores_declaracion ';'
+	|	especificadores_declaracion lista_declaradores ';'
 ;
 
-especificadores_declaracion:
-		CLASE_ALMACENAMIENTO especificadores_declaracion
-	|	TIPO_DATO especificadores_declaracion
+especificadores_declaracion
+	:	CLASE_ALMACENAMIENTO
+	|	CLASE_ALMACENAMIENTO especificadores_declaracion
+	|	especificador_tipo
+	|	especificador_tipo especificadores_declaracion
+	|	CALIFICADOR_TIPO
 	|	CALIFICADOR_TIPO especificadores_declaracion
 ;
 
-especificadores_declaracion_2:
-		especificadores_declaracion
-	| /* Nada */
+lista_declaradores
+	:	inicializador_declarador
+	|	lista_declaradores ',' inicializador_declarador
 ;
 
-lista_declaradores_2:
-		lista_declaradores
-	|	/* Nada */
+inicializador_declarador
+	:	declarador
+	|	declarador '=' inicializador
 ;
 
-lista_declaradores:
-		declarador
-	|	lista_declaradores ',' declarador
+especificador_tipo
+	:	TIPO_DATO
+	|	especificador_struct_union
+	|	especificador_enum
+	|	nombre_tipo
 ;
 
-declarador:
-		decla
-	|	decla '=' inicializador
+especificador_struct_union
+	:	STRUCT_UNION IDENTIFIER '{' lista_declaraciones_struct '}'
+	|	STRUCT_UNION '{' lista_declaraciones_struct '}'
+	|	STRUCT_UNION IDENTIFIER
 ;
 
-inicializador:
-		expresion_asignacion
-	|	'{' lista_inicializadores '}'
-	|	'{' lista_inicializadores ',' '}'
-;
-
-lista_inicializadores:
-		inicializador
-	|	lista_inicializadores ',' inicializador
-;
-
-especificador_struct_union:
-		STRUCT_UNION iden_o_nada '{' lista_declaraciones_struct '}'
-		STRUCT_UNION IDENTIFIER
-;
-
-lista_declaraciones_struct:
-		declaracion_struct
+lista_declaraciones_struct
+	:	declaracion_struct
 	|	lista_declaraciones_struct ',' declaracion_struct
 ;
 
-declaracion_struct:
-		lista_calificadores declaradores_struct ';'
+declaracion_struct
+	:	lista_especificador_calificador lista_declaradores_struct ';'
 ;
 
-lista_calificadores:
-		TIPO_DATO lista_calificadores_2
-	|	CALIFICADOR_TIPO lista_calificadores_2
+lista_especificador_calificador
+	:	especificador_tipo lista_declaraciones_struct
+	|	especificador_tipo
+	|	CALIFICADOR_TIPO lista_declaraciones_struct
+	|	CALIFICADOR_TIPO
 ;
 
-lista_calificadores_2:
-		lista_calificadores
-	|	/* Nada */
+lista_declaradores_struct
+	:	declarador_struct
+	|	lista_declaradores_struct ',' declarador_struct
 ;
 
-declaradores_struct:
-		decla_struct
-	|	declaradores_struct ',' decla_struct
+declarador_struct
+	:	declaracion
+	|	':' expresion_constante
+	|	declarador ':' expresion_constante
 ;
 
-// Falta una parte aca
-decla_struct:
-		decla
-;
-
-decla:
-		puntero declarador_directo
-	|	declarador_directo
-;
-
-puntero:
-		'*' lista_calificadores_tipo_2
-	|	'*' lista_calificadores_tipo_2 puntero
-;
-
-lista_calificadores_tipo_2:
-		lista_calificadores_tipo
-	|	/* Nada */
-;
-
-lista_calificadores_tipo:
-		CALIFICADOR_TIPO
-	|	lista_calificadores_tipo CALIFICADOR_TIPO
-;
-
-// Falta expresion constante en el array
-declarador_directo:
-		IDENTIFIER
-	|	'(' decla ')'
-	|	declarador_directo '[' expresion_constante_2 ']'
-	|	declarador_directo '(' lista_tipos_parametro ')'
-	|	declarador_directo '(' lista_identificadores_2 ')'
-;
-
-
-lista_tipos_parametro:
-		lista_parametros
-	|	lista_parametros ',' ELLIPSIS
-;
-
-lista_parametros:
-		declaracion_parametro
-	|	lista_parametros ',' declaracion_parametro
-;
-
-declaracion_parametro:
-		especificadores_declaracion decla
-	|	especificadores_declaracion declarador_abstracto_2
-;
-
-lista_identificadores_2:
-		lista_identificadores
-	|	/* Nada */
-;
-
-lista_identificadores:
-		IDENTIFIER
-	|	lista_identificadores ',' IDENTIFIER
-;
-
-especificador_enum:
-		ENUM iden_o_nada '{' lista_enumeradores '}'
+especificador_enum
+	:	ENUM '{' lista_enumerador '}'
+	|	ENUM IDENTIFIER '{' lista_enumerador '}'
 	|	ENUM IDENTIFIER
 ;
 
-lista_enumeradores:
-		enumerador
-	|	lista_enumeradores ',' enumerador
+lista_enumerador
+	:	enumerador
+	|	lista_enumerador ',' enumerador
 ;
 
-// constante_enumeracion es tan solo IDENTIFIER
-enumerador:
-		IDENTIFIER
+enumerador
+	:	IDENTIFIER
 	|	IDENTIFIER '=' expresion_constante
 ;
 
-nombre_typedef:
-	IDENTIFIER
+declarador
+	:	puntero declarador_directo
+	|	declarador_directo
 ;
 
-nombre_tipo:
-	lista_calificadores declarador_abstracto_2
+declarador_directo
+	:	IDENTIFIER
+	|	'(' declarador ')'
+	|	declarador_directo '[' expresion_constante ']'
+	|	declarador_directo '[' ']'
+	|	declarador_directo '(' lista_tipo_parametro ')'
+	|	declarador_directo '(' lista_identificadores ')'
+	|	declarador_directo '(' ')'
 ;
 
-declarador_abstracto_2:
-		declarador_abstracto
-	|	/* Nada */
+puntero
+	:	'*'
+	|	'*' lista_calificador_tipo
+	|	'*' puntero
+	|	'*' lista_calificador_tipo puntero
 ;
 
-declarador_abstracto:
-		puntero
-	|	puntero_2 declarador_abstracto_directo
+lista_calificador_tipo
+	:	CALIFICADOR_TIPO
+	|	lista_calificador_tipo CALIFICADOR_TIPO
 ;
 
-puntero_2:
-		puntero
-	|	/* Nada */
+lista_tipo_parametro
+	:	lista_parametro
+	|	lista_parametro ',' ELLIPSIS
 ;
 
-declarador_abstracto_directo:
-		'(' declarador_abstracto_directo ')'
-	|	declarador_abstracto_directo_2 '[' expresion_constante_2 ']'
-	|	declarador_abstracto_directo_2 '(' lista_tipos_parametro_2 ')'
+lista_parametro
+	:	declaracion_parametro
+	|	lista_parametro ',' declaracion_parametro
 ;
 
-declarador_abstracto_directo_2:
-		declarador_abstracto
-	|	/* Nada */
+declaracion_parametro
+	:	especificadores_declaracion declarador
+	|	especificadores_declaracion declarador_abstracto
+	|	especificadores_declaracion
 ;
 
-expresion_constante_2:
-		expresion_constante
-	|	/* Nada */
+lista_identificadores
+	:	IDENTIFIER
+	|	lista_identificadores ',' IDENTIFIER
 ;
 
-lista_tipos_parametro_2:
-		lista_tipos_parametro
-	|	/* Nada */
+nombre_tipo
+	:	lista_especificador_calificador
+	|	lista_especificador_calificador declarador_abstracto
 ;
 
-iden_o_nada:
-		IDENTIFIER
-	|	/* Nada */
+declarador_abstracto
+	:	puntero
+	|	declarador_abstracto_directo
+	|	puntero declarador_abstracto_directo
+;
+
+declarador_abstracto_directo
+	: '(' declarador_abstracto ')'
+	| '[' ']'
+	| '[' expresion_constante ']'
+	| declarador_abstracto_directo '[' ']'
+	| declarador_abstracto_directo '[' expresion_constante ']'
+	| '(' ')'
+	| '(' lista_tipo_parametro ')'
+	| declarador_abstracto_directo '(' ')'
+	| declarador_abstracto_directo '(' lista_tipo_parametro ')'
+;
+
+inicializador
+	:	expresion_asignacion
+	|	'{' lista_inicializador '}'
+	|	'{' lista_inicializador ',' '}'
+;
+
+lista_inicializador
+	:	inicializador
+	|	lista_inicializador ',' inicializador
+;
 
 /*
-	FIN SENTENCIAS
+
+	FIN DECLARACIONES
+
 */
+
+/*
+
+	SENTENCIAS
+
+*/
+
+sentencia
+	:	sentencia_etiquetada
+	|	sentencia_compuesta
+	|	sentencia_expresion
+	|	sentencia_seleccion
+	|	sentencia_iteracion
+	|	sentencia_salto
+;
+
+sentencia_etiquetada
+	:	IDENTIFIER ':' sentencia
+	|	CASE expresion_constante ':' sentencia
+	|	DEFAULT ':' sentencia
+;
+
+sentencia_compuesta
+	:	'{' '}'
+	|	'{' lista_sentencia '}'
+	|	'{' lista_declaraciones '}'
+	|	'{' lista_declaraciones lista_sentencia '}'
+;
+
+lista_declaraciones
+	:	declaracion
+	|	lista_declaraciones declaracion
+;
+
+lista_sentencia
+	:	sentencia
+	|	lista_sentencia sentencia
+;
+
+sentencia_expresion
+	:	';'
+	|	expresion ';'
+;
+
+sentencia_seleccion
+	:	IF '(' expresion ')' sentencia
+	|	IF '(' expresion ')' sentencia ELSE sentencia
+	|	SWITCH '(' expresion ')' sentencia
+;
+
+sentencia_iteracion
+	:	WHILE '(' expresion ')' sentencia
+	|	DO sentencia WHILE '(' expresion ')' ';'
+	|	FOR '(' sentencia_expresion sentencia_expresion ')' sentencia
+	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia
+;
+
+sentencia_salto
+	:	GOTO IDENTIFIER ';'
+	|	CONTINUE ';'
+	|	BREAK ';'
+	|	RETURN ';'
+	|	RETURN expresion ';'
+;
+
+unidad_traduccion
+	:	declaracion_externa
+	|	unidad_traduccion declaracion_externa
+;
+
+declaracion_externa
+	:	declaracion_funcion
+	|	declaracion
+;
+
+declaracion_funcion
+	:	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta
+	|	especificadores_declaracion declarador sentencia_compuesta
+	|	declarador lista_declaraciones sentencia_compuesta
+	|	declarador sentencia_compuesta
+;
+
 %%
 
 int yyerror (char *s) {
