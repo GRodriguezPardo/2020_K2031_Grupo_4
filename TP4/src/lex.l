@@ -27,11 +27,6 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       
       }
 
-["struct""union"] {
-      strcpy(yylval.cadena, yytext);
-      return STRUCT_UNION;
-}
-
 "enum" {
       return ENUM;
 }
@@ -119,6 +114,11 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 "break"     {return(BREAK);}
 "return"    {return(RETURN);}
 "goto"      {return(GOTO);}
+
+("struct"|"union") {
+      strcpy(yylval.cadena, yytext);
+      return STRUCT_UNION;
+}
 
 {IDENTIFICADOR} {
       strcpy(yylval.cadena, yytext);

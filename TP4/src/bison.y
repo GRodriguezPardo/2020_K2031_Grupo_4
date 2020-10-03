@@ -34,7 +34,7 @@ int yyerror();
 %type <cadena> lista_parametro declaracion_parametro opt_declaracion_parametro lista_identificadores opt_nombre_tipo declarador_abstracto
 %type <cadena> declarador_abstracto_directo inicializador lista_inicializador sentencia sentencia_etiquetada sentencia_compuesta lista_declaraciones
 %type <cadena> lista_sentencia sentencia_expresion sentencia_seleccion opcion_else sentencia_iteracion sentencia_salto unidad_traduccion declaracion_externa
-%type <cadena> declaracion_funcion expresion_constante
+%type <cadena> declaracion_funcion expresion_constante lista_argumentos_2 opt_declaracion
 
 %union {
   long ival;
@@ -42,8 +42,6 @@ int yyerror();
   char cadena[500];
   char caracter;
 }
-
-%right CALIFICADOR_TIPO
 
 %start unidad_traduccion
 
@@ -69,7 +67,7 @@ expresion_primaria
 expresion_sufijo
 	:	expresion_primaria
 	|	expresion_sufijo '[' expresion ']' {sprintf($$ + strlen($$), "[%s]", $3);}
-	|	expresion_sufijo '(' lista_argumentos ')' {sprintf($$ + strlen($$), "(%s)", $3);}
+	|	expresion_sufijo '(' lista_argumentos_2 ')' {sprintf($$ + strlen($$), "(%s)", $3);}
 	|	expresion_sufijo '.' IDENTIFIER {sprintf($$ + strlen($$), ".%s", $3);}
 	|	expresion_sufijo PTR_ARROW IDENTIFIER {sprintf($$ + strlen($$), "->%s", $3);}
 	|	expresion_sufijo INC_OP {strcat($$, "++");}
@@ -79,6 +77,11 @@ expresion_sufijo
 lista_argumentos
 	:	expresion_asignacion
 	|	lista_argumentos ',' expresion_asignacion {sprintf($$ + strlen($$), "%s, %s", $1, $3);}
+;
+
+lista_argumentos_2
+	:	{memset($$, 0, sizeof($$));}
+	|	lista_argumentos
 ;
 
 expresion_unaria
@@ -213,9 +216,15 @@ FIN EXPRESION
 */
 
 declaracion
-	:	especificadores_declaracion ';' {strcat($$, ";");}
-	|	especificadores_declaracion lista_declaradores ';' {sprintf($$ + strlen($$), " %s;", $2);}
+	:	especificadores_declaracion opt_declaracion {sprintf($$ + strlen($$), " %s", $2);}
 ;
+
+opt_declaracion
+	:	';'		{strcpy($$, ";");}
+	|	lista_declaradores ';'	{strcat($$, ";");}
+;
+
+// HAY QUE LIMPIAR EL ARRAY EN LAS REGLAS VACIAS
 
 especificadores_declaracion
 	:	CLASE_ALMACENAMIENTO especificadores_declaracion_2	{sprintf($$, "%s %s", $1, $2);}
@@ -224,7 +233,7 @@ especificadores_declaracion
 ;
 
 especificadores_declaracion_2
-	:
+	:	{memset($$, 0, sizeof($$));}
 	|	especificadores_declaracion
 ;
 
@@ -266,7 +275,7 @@ lista_especificador_calificador
 ;
 
 opt_lista_especificador_calificador
-	:
+	:	{memset($$, 0, sizeof($$));}
 	|	lista_declaraciones_struct
 ;
 
@@ -317,7 +326,7 @@ puntero
 ;
 
 puntero_2
-	:
+	:	{memset($$, 0, sizeof($$));}
 	|	puntero
 ;
 
@@ -346,7 +355,7 @@ declaracion_parametro
 ;
 
 opt_declaracion_parametro
-	:
+	:	{memset($$, 0, sizeof($$));}
 	|	declarador
 	|	declarador_abstracto
 ;
@@ -361,7 +370,7 @@ nombre_tipo
 ;
 
 opt_nombre_tipo
-	:	{}
+	:	{memset($$, 0, sizeof($$));}
 	| declarador_abstracto
 ;
 
@@ -422,7 +431,7 @@ sentencia_etiquetada
 ;
 
 sentencia_compuesta
-	:	'{' '}'	{strcpy($$, "{}");}
+	:	'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
 	|	'{' lista_sentencia '}'	{sprintf($$, "{%s}", $2);}
 	|	'{' lista_declaraciones '}'	{sprintf($$, "{%s}", $2);}
 	|	'{' lista_declaraciones lista_sentencia '}'	{sprintf($$, "{%s %s}", $2, $3);}
@@ -449,7 +458,7 @@ sentencia_seleccion
 ;
 
 opcion_else
-	:	{}
+	:	{memset($$, 0, sizeof($$));}
 	|	ELSE sentencia	{sprintf($$, "else %s", $2);}
 ;
 
@@ -488,7 +497,7 @@ declaracion_funcion
 %%
 
 int yyerror (char *s) {
-  printf ("%s\n", s);
+  printf ("\n\n%s\n\n", s);
 }
 
 void main() {
