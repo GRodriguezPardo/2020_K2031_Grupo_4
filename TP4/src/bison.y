@@ -40,7 +40,7 @@ int yyerror();
 %union {
   long ival;
   double fval;
-  char* cadena;
+  char cadena[500];
   char caracter;
 }
 
@@ -166,7 +166,6 @@ expresion_logical_or
 	|	expresion_logical_or OR_OP expresion_logical_and {sprintf($$ + strlen($$), " %s %s", "||", $3);}
 ;
 
-// Aca falta el ternario
 expresion_condicional
 	:	expresion_logical_or
 	|	expresion_logical_or '?' expresion ':' expresion_condicional
@@ -217,8 +216,7 @@ FIN EXPRESION
 */
 
 declaracion
-	:	especificadores_declaracion opt_declaracion {printf("%p", &$$);
-		sprintf($$ + strlen($$), " %s", $2);}
+	:	especificadores_declaracion opt_declaracion {sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 opt_declaracion
@@ -503,8 +501,5 @@ int yyerror (char *s) {
 }
 
 void main() {
-	strMax = 250;
-	yylval.cadena = malloc(250);
-
    yyparse();
 }
