@@ -1,0 +1,1 @@
+void concatenarStrings(char**, int*, int, ...);

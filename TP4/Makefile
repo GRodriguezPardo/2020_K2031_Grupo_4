@@ -1,11 +1,11 @@
-_HEADERS = bison.tab.h
+_HEADERS = bison.tab.h funciones.h
 HEAD_DIR = ./headers
 HEADERS = $(patsubst %,$(HEAD_DIR)/%,$(_HEADERS))
 
 _LIB =
 LDIR = ./lib
 
-_OBJ = lex.yy.o bison.tab.o
+_OBJ = lex.yy.o bison.tab.o concatenarString.o
 ODIR = ./compile
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 

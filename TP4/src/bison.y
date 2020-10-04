@@ -6,6 +6,7 @@
 #include <string.h>
 int yylex();
 int yyerror();
+int strMax;
 
 #ifdef BDEBUG
 	int yydebug = 1;
@@ -216,7 +217,8 @@ FIN EXPRESION
 */
 
 declaracion
-	:	especificadores_declaracion opt_declaracion {sprintf($$ + strlen($$), " %s", $2);}
+	:	especificadores_declaracion opt_declaracion {printf("%p", &$$);
+		sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 opt_declaracion
