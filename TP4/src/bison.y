@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include "./headers/funciones.h"
 int yylex();
 int yyerror();
-int strMax;
 
 #ifdef BDEBUG
 	int yydebug = 1;
@@ -40,7 +40,7 @@ int strMax;
 %union {
   long ival;
   double fval;
-  char cadena[500];
+  char* cadena;
   char caracter;
 }
 
@@ -503,5 +503,8 @@ int yyerror (char *s) {
 }
 
 void main() {
+	strMax = 250;
+	yylval.cadena = malloc(250);
+
    yyparse();
 }

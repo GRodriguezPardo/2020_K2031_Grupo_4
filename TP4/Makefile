@@ -60,7 +60,7 @@ bison:
 ./compile/bison.tab.o:
 	bison
 
-./compile/%.o: $(LDIR)/%.c
+./compile/%.o: $(LDIR)/%.c $(HEADERS)
 	$(CC) $(CFLAGS) $@ $<
 
 output:

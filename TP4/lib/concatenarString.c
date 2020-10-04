@@ -1,7 +1,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h> 
+#include <stdio.h>
+#include "../headers/funciones.h" 
+
+int strMax;
 
 /*
 
@@ -19,7 +22,7 @@ concatenarStrings(&posicion, 30, 2, " %s", "string1", "\n\n %s 2 \n", "string2")
 
 */
 
-void concatenarStrings(char** address, int* strMax, int args, ...) {
+void concatenarStrings(char** address, int args, ...) {
   va_list valist;
   va_start(valist, args);
  
@@ -28,10 +31,10 @@ void concatenarStrings(char** address, int* strMax, int args, ...) {
     char* str = va_arg(valist, char*);
     int addrLength = strlen(*address);
 
-    if(strlen(str) + 1 > *strMax - addrLength) {
+    if(strlen(str) + 1 > strMax - addrLength) {
       int n = strlen(str) + 250;
       *address = realloc(*address, strlen(str) + 250);
-      *strMax += strlen(str) + 250;
+      strMax += strlen(str) + 250;
     }
 
     sprintf(*address + addrLength, format, str);
@@ -40,8 +43,8 @@ void concatenarStrings(char** address, int* strMax, int args, ...) {
   va_end(valist);
 }
 
-void copiarStrings(char** address, int* strMax, int args, ...) {
-  memset(*address, 0, *strMax); // Limpiamos la posicion primero
+void copiarStrings(char** address, int args, ...) {
+  memset(*address, 0, strMax); // Limpiamos la posicion primero
 
   va_list valist;
   va_start(valist, args);
