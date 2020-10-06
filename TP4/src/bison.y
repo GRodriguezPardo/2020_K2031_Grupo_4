@@ -8,6 +8,8 @@
 int yylex();
 int yyerror();
 
+NodoDeclaracion* p_declaraciones = NULL;
+
 FILE* yyin;
 
 #ifdef BDEBUG
@@ -218,7 +220,7 @@ FIN EXPRESION
 */
 
 declaracion:
-		especificadores_declaracion opt_declaracion {sprintf($$ + strlen($$), " %s", $2);}
+		especificadores_declaracion opt_declaracion {agregarDeclaracion(&p_declaraciones, $1, $2);}
 ;
 
 opt_declaracion:
@@ -499,14 +501,15 @@ declaracion_funcion:
 %%
 
 int yyerror (char *s) {
-  printf ("\n\nError encontrado: %s\n\n", yylval.cadena);
+  printf ("\n\nLinea %d | Error: %s\n\n", line, yylval.cadena);
 }
 
 void main() {
 	setupFiles(&yyin);
    yyparse();
+	printearDeclaraciones(p_declaraciones);
 
-	// Pausa que anda en winodws y linux
+	// Pausa que anda en windows y linux
 	char* pausa;
 	scanf("\n\n%s", pausa);
 }
