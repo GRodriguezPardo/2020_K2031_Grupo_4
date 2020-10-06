@@ -4,7 +4,7 @@
 
 // Recordar que la linea es una variable global
 
-void agregarDeclaracion(NodoDeclaracion** p_declaraciones, char* especificadores, char* declaracion) {
+void agregarDeclaracion(NodoDeclaracion** tail, char* especificadores, char* declaracion) {
 	NodoDeclaracion* nuevoNodo = (NodoDeclaracion*) malloc(sizeof(NodoDeclaracion));
 
 	nuevoNodo->especificadores = (char*) malloc(strlen(especificadores) + 1);
@@ -14,8 +14,14 @@ void agregarDeclaracion(NodoDeclaracion** p_declaraciones, char* especificadores
 	strcpy(nuevoNodo->especificadores, especificadores);
 	strcpy(nuevoNodo->declaracion, declaracion);
 
-	nuevoNodo->siguiente = *p_declaraciones;
-	*p_declaraciones = nuevoNodo;
+	nuevoNodo->siguiente = NULL;
+
+	if(*tail == NULL)
+		*tail = nuevoNodo;
+	else {
+		(*tail)->siguiente = nuevoNodo;
+		*tail = nuevoNodo;
+	}
 }
 
 void printearDeclaraciones(NodoDeclaracion* head) {

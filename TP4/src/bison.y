@@ -8,7 +8,8 @@
 int yylex();
 int yyerror();
 
-NodoDeclaracion* p_declaraciones = NULL;
+NodoDeclaracion* head_declaraciones = NULL;
+NodoDeclaracion* tail_declaraciones = NULL;
 
 FILE* yyin;
 
@@ -220,7 +221,12 @@ FIN EXPRESION
 */
 
 declaracion:
-		especificadores_declaracion opt_declaracion {agregarDeclaracion(&p_declaraciones, $1, $2);}
+		especificadores_declaracion opt_declaracion {
+			agregarDeclaracion(&tail_declaraciones, $1, $2);
+
+			if(head_declaraciones == NULL)
+				head_declaraciones = tail_declaraciones;
+		}
 ;
 
 opt_declaracion:
@@ -507,7 +513,7 @@ int yyerror (char *s) {
 void main() {
 	setupFiles(&yyin);
    yyparse();
-	printearDeclaraciones(p_declaraciones);
+	printearDeclaraciones(head_declaraciones);
 
 	// Pausa que anda en windows y linux
 	char* pausa;
