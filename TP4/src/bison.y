@@ -295,7 +295,7 @@ lista_declaradores_struct:
 ;
 
 declarador_struct:
-		declaracion
+		declarador
 	|	':' expresion_constante	{sprintf($$, ": %s", $2);}
 	|	declarador ':' expresion_constante	{sprintf($$ + strlen($$), ": %s", $3);}
 ;

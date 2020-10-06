@@ -14,7 +14,7 @@ void agregarDeclaracion(NodoDeclaracion** tail, char* especificadores, char* dec
 	strcpy(nuevoNodo->especificadores, especificadores);
 	strcpy(nuevoNodo->declaracion, declaracion);
 
-	nuevoNodo->siguiente = NULL;
+	nuevoNodo->siguiente = NULL; 
 
 	if(*tail == NULL)
 		*tail = nuevoNodo;
