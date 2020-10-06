@@ -8,6 +8,8 @@
 int yylex();
 int yyerror();
 
+FILE* yyin;
+
 #ifdef BDEBUG
 	int yydebug = 1;
 #endif
@@ -497,9 +499,14 @@ declaracion_funcion:
 %%
 
 int yyerror (char *s) {
-  printf ("\n\n%s\n\n", s);
+  printf ("\n\nError encontrado: %s\n\n", yylval.cadena);
 }
 
 void main() {
+	setupFiles(&yyin);
    yyparse();
+
+	// Pausa que anda en winodws y linux
+	char* pausa;
+	scanf("\n\n%s", pausa);
 }

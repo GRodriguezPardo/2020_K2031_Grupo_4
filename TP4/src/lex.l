@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./headers/bison.tab.h"
+#include "./headers/funciones.h"
+
+int line = 0;
 %}
 DIGITO_DECIMAL [0-9] 
 DIGITO_OCTAL [0-7] 
@@ -24,7 +27,7 @@ CARACTERES_PUNTUACION "#"|"$"|"("|")"|","|":"|"?"|"@"|"["|"]"|"_"|"{"|"}"|";"
 CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\""|"\\?"|"\\0"
 %%
 "/*"[^"/*""*/"]*"*/" {
-      
+      contarLineas(yytext);
       }
 
 "enum" {
@@ -130,7 +133,10 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 
 "\n" {
-      // Esto es para poder trabajar en consola
+      line++;
+}
+
+<<EOF>> {
       return 0;
 }
 
