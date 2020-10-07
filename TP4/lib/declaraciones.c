@@ -16,12 +16,10 @@ void agregarDeclaracion(NodoDeclaracion** tail, char* especificadores, char* dec
 
 	nuevoNodo->siguiente = NULL; 
 
-	if(*tail == NULL)
-		*tail = nuevoNodo;
-	else {
+	if(*tail != NULL)
 		(*tail)->siguiente = nuevoNodo;
-		*tail = nuevoNodo;
-	}
+
+	*tail = nuevoNodo;
 }
 
 void printearDeclaraciones(NodoDeclaracion* head) {

@@ -19,7 +19,6 @@ void magenta(int);
 void cyan(int);
 void blanco();
 
-
 /*
 	DECLARACIONES
 */
@@ -33,3 +32,19 @@ typedef struct NodoDeclaracion {
 
 void agregarDeclaracion(NodoDeclaracion**, char*, char*);
 void printearDeclaraciones(NodoDeclaracion*);
+
+/*
+	FUNCIONES
+*/
+
+typedef struct NodoFuncion {
+	char* especificadores;
+	char* declarador;
+	int inicio;
+	int final;
+	struct NodoFuncion* siguiente;
+} NodoFuncion;
+
+void crearNodo(NodoFuncion**, char*, char*);
+void terminarFuncion(NodoFuncion*);
+void printearFuncion(NodoFuncion*);

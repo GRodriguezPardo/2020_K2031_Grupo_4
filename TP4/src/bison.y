@@ -11,6 +11,9 @@ int yyerror();
 NodoDeclaracion* head_declaraciones = NULL;
 NodoDeclaracion* tail_declaraciones = NULL;
 
+NodoFuncion* head_funcion = NULL;
+NodoFuncion* tail_funcion = NULL;
+
 FILE* yyin;
 
 #ifdef BDEBUG
@@ -493,14 +496,18 @@ unidad_traduccion:
 ;
 
 declaracion_externa:
-		declaracion_funcion {printf("%s", $$);}
+		declaracion_funcion
 	|	declaracion
 ;
 
 declaracion_funcion:
-		especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
-	|	especificadores_declaracion declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
-	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+		especificadores_declaracion declarador <cadena>{
+			crearNodo(&tail_funcion, $1, $2);
+
+			if(head_funcion == NULL)
+				head_funcion = tail_funcion;
+		} 
+		sentencia_compuesta <cadena>{terminarFuncion(tail_funcion);}
 	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
 ;
 
@@ -510,9 +517,14 @@ int yyerror (char *s) {
   printf ("\n\nLinea %d | Error: %s\n\n", line, yylval.cadena);
 }
 
+//	Estas regla sirven de algo?
+// especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {printf("aca"); sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
+// declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+
 void main() {
 	setupFiles(&yyin);
    yyparse();
+	printearFuncion(head_funcion);
 	printearDeclaraciones(head_declaraciones);
 
 	// Pausa que anda en windows y linux
