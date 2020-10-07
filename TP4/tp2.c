@@ -4,7 +4,7 @@ struct casa {
 
 void setupFiles(int** yyin) {
    char input[50];
-
+   $
    printf("Ingrese nombre del archivo a leer (recuerde ingresar formato):\n> ");
    scanf("%s", input);
    *yyin = fopen(input, "r");

@@ -30,12 +30,13 @@ void printearDeclaraciones(NodoDeclaracion* head) {
 	printf("  DECLARACIONES\n");
 	printf("-----------------\n\n");
 	while(head != NULL) {
-		printf("\033[0;33m	");
+		amarillo(0);
 		printf("Linea %d | ", head->linea);
-		printf("\033[1;31m");
+		rojo(1);
 		printf("%s ", head->especificadores);
-		printf("\033[0;32m");
+		verde(0);
 		printf("%s\n", head->declaracion);
 		head = head->siguiente;
+		blanco();
 	}
 }

@@ -8,6 +8,19 @@ void copiarStrings(char**, int, ...);
 extern int line;
 
 /*
+	COLORES
+*/
+
+void rojo(int);
+void verde(int);
+void amarillo(int);
+void azul(int);
+void magenta(int);
+void cyan(int);
+void blanco();
+
+
+/*
 	DECLARACIONES
 */
 

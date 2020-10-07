@@ -5,7 +5,7 @@ HEADERS = $(patsubst %,$(HEAD_DIR)/%,$(_HEADERS))
 _LIB =
 LDIR = ./lib
 
-_OBJ = lex.yy.o bison.tab.o concatenarString.o archivosComentarios.o declaraciones.o
+_OBJ = lex.yy.o bison.tab.o concatenarString.o archivosComentarios.o declaraciones.o colores.o
 ODIR = ./compile
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 

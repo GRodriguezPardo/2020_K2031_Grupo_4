@@ -23,7 +23,7 @@ SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"
 
 CONSTANTE_REAL1 ({DIGITO_DECIMAL}+(e|E)(-|\+)?{DIGITO_DECIMAL}+(f|F|l|L)?)
 CONSTANTE_REAL2 (({DIGITO_DECIMAL}*?\.{DIGITO_DECIMAL}+)|({DIGITO_DECIMAL}+\.))((E|e)(-|\+)?{DIGITO_DECIMAL}+)?(f|F|l|L)?
-CARACTERES_PUNTUACION "#"|"$"|"("|")"|","|":"|"?"|"@"|"["|"]"|"_"|"{"|"}"|";"
+CARACTERES_PUNTUACION "#"|"("|")"|","|":"|"?"|"@"|"["|"]"|"_"|"{"|"}"|";"
 CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\""|"\\?"|"\\0"
 %%
 "/*"[^"/*""*/"]*"*/" {
@@ -141,7 +141,19 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 
 . {
-      
+      printf("\n");
+      amarillo(0);
+      printf("Linea %d", line);
+      blanco();
+      printf(" | ");
+      rojo(1);
+      printf("ERROR LEXICO");
+      blanco();
+      printf(" | ");
+      verde(0);
+      printf(" %s", yytext);
+      blanco();
+      printf("\n");
 }
 
 
