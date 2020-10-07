@@ -5,3 +5,4 @@ headers/*.h.gch
 a.out
 headers/bison.tab.h
 bison.output
+tp2.c
