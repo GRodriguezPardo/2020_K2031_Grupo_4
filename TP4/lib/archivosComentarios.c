@@ -25,3 +25,17 @@ void contarLineas(char* yytext) {
       i++;
    }
 }
+
+void printearMensajeFinal() {
+   printf("\n\n\n\n\n");
+
+   if(hayError == 1) {
+      rojo(1);
+      printf("ANALISIS FINALIZADO CON ERRORES");
+   } else {
+      verde(1);
+      printf("[======================================] 100%c", 37);
+      printf("\nANALISIS FINALIZADO CORRECTAMENTE");
+   }
+   blanco();
+}

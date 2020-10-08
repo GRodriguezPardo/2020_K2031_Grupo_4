@@ -536,6 +536,7 @@ declaracion_funcion:
 
 int yyerror (char *s) {
   printf ("\n\nLinea %d | Error: %s\n\n", line, yylval.cadena);
+  hayError = 1;
 }
 
 //	Estas regla sirven de algo?
@@ -544,11 +545,13 @@ int yyerror (char *s) {
 
 void main() {
 	setupFiles(&yyin);
-   yyparse();
+  	yyparse();
 	printearFuncion(head_funcion);
 	printearDeclaraciones(head_declaraciones);
 
+	printearMensajeFinal();
+
 	// Pausa que anda en windows y linux
-	char* pausa;
-	scanf("\n\n%s", pausa);
+	char pausa;
+	scanf("\n\nANALISIS FINALIZADO. PRESIONE CUALQUIER BOTON PARA SALIR.\n\n%c", pausa);
 }

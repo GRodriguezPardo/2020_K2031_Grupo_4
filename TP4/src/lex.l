@@ -8,6 +8,7 @@
 #include "./headers/funciones.h"
 
 int line = 0;
+short hayError = 0;
 %}
 DIGITO_DECIMAL [0-9] 
 DIGITO_OCTAL [0-7] 
@@ -157,6 +158,8 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       printf(" %s", yytext);
       blanco();
       printf("\n");
+
+      hayError = 1;
 }
 
 

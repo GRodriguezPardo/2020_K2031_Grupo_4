@@ -5,7 +5,11 @@ void contarLineas(char*);
 
 void concatenarStrings(char**, int, ...);
 void copiarStrings(char**, int, ...);
+
+void printearMensajeFinal();
+
 extern int line;
+extern short hayError;
 
 /*
 	COLORES
