@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "../headers/funciones.h"
 
 void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador) {

@@ -36,14 +36,16 @@ FILE* yyin;
 %type <cadena> expresion expresion_asignacion expresion_condicional operador_asignacion expresion_logical_or expresion_logical_and
 %type <cadena> expresion_o_inclusivo expresion_o_excluyente expresion_y expresion_igualdad expresion_relacional expresion_corrimiento
 %type <cadena> expresion_aditiva expresion_multiplicativa expresion_conversion expresion_unaria unary_op expresion_sufijo lista_argumentos
-%type <cadena> expresion_primaria constante nombre_tipo declaracion especificadores_declaracion especificadores_declaracion_2 lista_declaradores
+%type <cadena> expresion_primaria constante declaracion especificadores_declaracion especificadores_declaracion_2 lista_declaradores
 %type <cadena> inicializador_declarador especificador_tipo especificador_struct_union lista_declaraciones_struct declaracion_struct lista_especificador_calificador
 %type <cadena> opt_lista_especificador_calificador lista_declaradores_struct declarador_struct especificador_enum lista_enumerador
 %type <cadena> enumerador declarador declarador_directo puntero puntero_2 opt_puntero lista_calificador_tipo lista_tipo_parametro 
-%type <cadena> lista_parametro declaracion_parametro opt_declaracion_parametro lista_identificadores opt_nombre_tipo declarador_abstracto
-%type <cadena> declarador_abstracto_directo inicializador lista_inicializador sentencia sentencia_etiquetada sentencia_compuesta lista_declaraciones
-%type <cadena> lista_sentencia sentencia_expresion sentencia_seleccion opcion_else sentencia_iteracion sentencia_salto unidad_traduccion declaracion_externa
-%type <cadena> declaracion_funcion expresion_constante lista_argumentos_2 opt_declaracion
+%type <cadena> lista_parametro declaracion_parametro opt_declaracion_parametro lista_identificadores declarador_abstracto lista_bloque_codigo
+%type <cadena> declarador_abstracto_directo inicializador lista_inicializador sentencia sentencia_etiquetada sentencia_compuesta
+%type <cadena> sentencia_expresion sentencia_seleccion opcion_else sentencia_iteracion sentencia_salto unidad_traduccion declaracion_externa
+%type <cadena> declaracion_funcion expresion_constante lista_argumentos_2 opt_declaracion nombre_tipo opt_nombre_tipo bloque_codigo lista_declaraciones
+
+// %type <cadena> lista_sentencia
 
 %union {
   long ival;
@@ -205,7 +207,7 @@ expresion_constante:
 // Ver lo del enum. Si es solo identificador, entonces expresion_primaria ya es suficiente
 constante:
 		DECIMAL_CONSTANT {sprintf($$, "%ld", $1);}
-	|	CONSTANTE_CARACTER {sprintf($$, "%c", $1);}
+	|	CONSTANTE_CARACTER
 	|	CONSTANTE_REAL {sprintf($$, "%lf", $1);}
 	|	OCTAL_CONSTANT {sprintf($$, "%ld", $1);}
 	|	HEX_CONSTANT {sprintf($$, "%ld", $1);}
@@ -264,8 +266,9 @@ especificador_tipo:
 		TIPO_DATO
 	|	especificador_struct_union
 	|	especificador_enum
-	|	nombre_tipo
 ;
+
+//	|	TIPO_TYPEDEF  -> Se necesita TS para implementar
 
 especificador_struct_union:
 		STRUCT_UNION IDENTIFIER '{' lista_declaraciones_struct '}'	{sprintf($$ + strlen($$), " %s {%s}", $2, $4);}
@@ -275,7 +278,7 @@ especificador_struct_union:
 
 lista_declaraciones_struct:
 		declaracion_struct
-	|	lista_declaraciones_struct ',' declaracion_struct	{sprintf($$ + strlen($$), ", %s", $3);}
+	|	lista_declaraciones_struct declaracion_struct	{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
 declaracion_struct:
@@ -382,6 +385,9 @@ nombre_tipo:
 		lista_especificador_calificador opt_nombre_tipo 	{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
+//nombre_tipo:	 {memset($$, 0, sizeof($$));}
+//;
+
 opt_nombre_tipo:
 		{memset($$, 0, sizeof($$));}
 	| declarador_abstracto
@@ -445,9 +451,20 @@ sentencia_etiquetada:
 
 sentencia_compuesta:
 		'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
-	|	'{' lista_sentencia '}'	{sprintf($$, "{%s}", $2);}
+	|	'{' lista_bloque_codigo '}' {sprintf($$, "{%s}", $2);}
+	/*|	'{' lista_sentencia '}'	{sprintf($$, "{%s}", $2);}
 	|	'{' lista_declaraciones '}'	{sprintf($$, "{%s}", $2);}
-	|	'{' lista_declaraciones lista_sentencia '}'	{sprintf($$, "{%s %s}", $2, $3);}
+	|	'{' lista_declaraciones lista_sentencia '}'	{sprintf($$, "{%s %s}", $2, $3);}*/
+;
+
+lista_bloque_codigo:
+		bloque_codigo
+	|	lista_bloque_codigo bloque_codigo {sprintf($$ + strlen($$), " %s", $2);}
+;
+
+bloque_codigo:
+		sentencia
+	|	declaracion
 ;
 
 lista_declaraciones:
@@ -455,10 +472,10 @@ lista_declaraciones:
 	|	lista_declaraciones declaracion	{sprintf($$ + strlen($$), " %s", $2);}
 ;
 
-lista_sentencia:
+/*lista_sentencia:
 		sentencia
 	|	lista_sentencia sentencia	{sprintf($$, " %s", $2);}
-;
+;*/
 
 sentencia_expresion:
 		';'	{strcpy($$, ";");}
@@ -480,6 +497,8 @@ sentencia_iteracion:
 	|	DO sentencia WHILE '(' expresion ')' ';'	{sprintf($$, "do %s while (%s)", $2, $5);}
 	|	FOR '(' sentencia_expresion sentencia_expresion ')' sentencia	{sprintf($$, "for(%s%s) %s", $3, $4, $6);}
 	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
+	|	FOR '(' declaracion sentencia_expresion ')' sentencia	{sprintf($$, "for(%s%s) %s", $3, $4, $6);}
+	|	FOR '(' declaracion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
 ;
 
 sentencia_salto:
@@ -509,6 +528,8 @@ declaracion_funcion:
 		} 
 		sentencia_compuesta <cadena>{terminarFuncion(tail_funcion);}
 	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
+	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
+	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
 ;
 
 %%
@@ -518,8 +539,8 @@ int yyerror (char *s) {
 }
 
 //	Estas regla sirven de algo?
-// especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {printf("aca"); sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
-// declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+// 
+// 
 
 void main() {
 	setupFiles(&yyin);

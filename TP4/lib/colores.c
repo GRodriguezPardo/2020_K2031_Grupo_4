@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 void rojo(int bold) {
 	printf("\033[%d;31m", bold != 0);
 }

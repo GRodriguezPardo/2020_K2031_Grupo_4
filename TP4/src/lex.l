@@ -19,7 +19,7 @@ TIPO_DATO "void"|"char"|"short"|"int"|"long"|"float"|"double"|"signed"|"unsigned
 CLASE_ALMACENAMIENTO "auto"|"register"|"static"|"extern"|"typedef"
 CALIFICADOR_TIPO "const"|"volatile"
 
-SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"
+SINGLE_OPERATOR "&"|"*"|"^"|"~"|"="|"-"|"+"|"/"|"%"|"<"|">"|"!"
 
 CONSTANTE_REAL1 ({DIGITO_DECIMAL}+(e|E)(-|\+)?{DIGITO_DECIMAL}+(f|F|l|L)?)
 CONSTANTE_REAL2 (({DIGITO_DECIMAL}*?\.{DIGITO_DECIMAL}+)|({DIGITO_DECIMAL}+\.))((E|e)(-|\+)?{DIGITO_DECIMAL}+)?(f|F|l|L)?
@@ -70,10 +70,13 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return STRING;
 }
 '(.|{CARACTERES_ESCAPE})' {
-      return yytext[1];
+      strcpy(yylval.cadena, yytext);
+      return CONSTANTE_CARACTER;
 }
 
-"//".* {}
+"//".* {
+      line++;
+}
 
 "#define ".* {}
 
@@ -132,7 +135,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       // No hacemos nada
 }
 
-"\n" {
+"\n\r"|"\r\n"|"\n"|"\r" {
       line++;
 }
 
