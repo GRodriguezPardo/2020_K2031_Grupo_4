@@ -445,6 +445,7 @@ sentencia:
 	|	sentencia_seleccion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de seleccion", line);}
 	|	sentencia_iteracion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de iteracion", line);}
 	|	sentencia_salto			{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de salto", line);}
+	|	error 					{}
 ;
 
 sentencia_etiquetada:
@@ -456,7 +457,6 @@ sentencia_etiquetada:
 sentencia_compuesta:
 		'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
 	|	'{' lista_bloque_codigo '}' {sprintf($$, "{%s}", $2);}
-	|	error '}'
 ;
 
 lista_bloque_codigo:
@@ -482,13 +482,11 @@ lista_declaraciones:
 sentencia_expresion:
 		';'	{strcpy($$, ";");}
 	|	expresion ';'	{strcat($$, ";");}
-	|	error ';'
 ;
 
 sentencia_seleccion:
 		IF '(' expresion ')' sentencia opcion_else	{sprintf($$, "if (%s) %s %s", $3, $5, $6);}
 	|	SWITCH '(' expresion ')' sentencia	{sprintf($$, "switch (%s) %s", $3, $5);}
-	|	error '}'
 ;
 
 opcion_else:
@@ -503,7 +501,6 @@ sentencia_iteracion:
 	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
 	|	FOR '(' declaracion sentencia_expresion ')' sentencia	{sprintf($$, "for(%s%s) %s", $3, $4, $6);}
 	|	FOR '(' declaracion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
-	|	error '}'
 ;
 
 sentencia_salto:
@@ -512,7 +509,6 @@ sentencia_salto:
 	|	BREAK ';'	{strcpy($$, "break;");}
 	|	RETURN ';'	{strcpy($$, "return;");}
 	|	RETURN expresion ';'		{sprintf($$, "return %s;", $2);}
-	|	error ';'
 ;
 
 unidad_traduccion:
