@@ -166,8 +166,8 @@ expresion_o_excluyente:
 ;
 
 expresion_o_inclusivo:
-		expresion_o_excluyente
-	|	expresion_o_excluyente '|' expresion_y {sprintf($$ + strlen($$), " | %s", $3);}
+        expresion_o_excluyente
+    |    expresion_o_inclusivo '|' expresion_o_excluyente {sprintf($$ + strlen($$), " | %s", $3);}
 ;
 
 expresion_logical_and:
