@@ -12,6 +12,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 CFLAGS = -c -o
 BFLAG += -d
 DGFLAG +=
+WINFLAG +=
 
 CC = gcc
 
@@ -23,6 +24,9 @@ build: message makeFolder flex $(OBJ)
 debug: BFLAG += --debug
 debug: DGFLAG += -D BDEBUG
 debug: build
+
+windows: WINFLAG += -D WINCOMP
+windows: build
 
 message:
 	@echo "\n========== INICIANDO COMPILACION ========="
@@ -43,7 +47,7 @@ makeFolder:
 flex: bison
 	@echo "\n\n===== GENERANDO ARCHIVO FLEX =====\n"
 	flex ./src/lex.l
-	$(CC) $(CFLAGS) ./compile/lex.yy.o lex.yy.c -lfl
+	$(CC) $(CFLAGS) ./compile/lex.yy.o lex.yy.c -L ./lib_flex_bison/libfl.a
 	@echo "\n===== ARCHIVO FLEX GENERADO =====\n"
 
 ./compile/lex.yy.o:
@@ -54,14 +58,14 @@ bison:
 	bison $(BFLAG) ./src/bison.y
 	mv bison.tab.h headers
 	@echo "-  Moviendo headers"
-	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -ly
+	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -L ./lib_flex_bison/liby.a
 	@echo "\n===== ARCHIVO BISON GENERADO =====\n"
 
 ./compile/bison.tab.o:
 	bison
 
 ./compile/%.o: $(LDIR)/%.c $(HEADERS)
-	$(CC) $(CFLAGS) $@ $<
+	$(CC) $(WINFLAG) $(CFLAGS) $@ $<
 
 output:
 	bison -v ./src/bison.y

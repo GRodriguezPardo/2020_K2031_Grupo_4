@@ -558,7 +558,7 @@ void main() {
 
 	printearMensajeFinal();
 
-	// Pausa que anda en windows y linux
+	// Pausa que anda en Windows y Linux
 	printf("\n\n\tANALISIS FINALIZADO. INGRESE CUALQUIER COSA PARA SALIR.\n\n");
 	char* pausa;
 	scanf("%s", pausa);
