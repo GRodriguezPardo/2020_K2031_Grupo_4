@@ -26,26 +26,33 @@ void terminarFuncion(NodoFuncion* tail) {
 }
 
 void printearFuncion(NodoFuncion* head) {
-	printf("\n\n");
-	printf("-----------------\n");
-	printf("  FUNCIONES\n");
-	printf("-----------------\n\n");
+	if(head != NULL) {
+		printf("\n\n");
+		printf("-----------------\n");
+		printf("  FUNCIONES\n");
+		printf("-----------------\n\n");
 
-	while(head != NULL) {
 		amarillo(0);
-		printf("%d", head->inicio);
-		blanco();
-		printf(" | ");
-		amarillo(0);
-		printf("%d", head->final);
-		blanco();
-		printf(" | ");
+		printf("• Linea");
+		printf("     ");
 		rojo(1);
-		printf("%s", head->especificadores);
+		printf("• Tipo dato");
+		printf("     ");
 		verde(0);
-		printf(" %s", head->declarador);
-		blanco();
-		printf("\n");
-		head = head->siguiente;
+		printf("• Declaracion\n\n");
+
+		while(head != NULL) {
+			imprimirLinea(head->inicio);
+			printf(" | ");
+			imprimirLinea(head->final);
+			printf(" | ");
+			rojo(1);
+			printf("%s", head->especificadores);
+			verde(0);
+			printf(" %s", head->declarador);
+			blanco();
+			printf("\n");
+			head = head->siguiente;
+		}
 	}
 }

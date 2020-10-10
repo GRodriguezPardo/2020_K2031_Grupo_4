@@ -7,9 +7,13 @@ void concatenarStrings(char**, int, ...);
 void copiarStrings(char**, int, ...);
 
 void printearMensajeFinal();
-
-extern int line;
-extern short hayError;
+void calcularCaracteres();
+void imprimirLinea(int);
+// Algunas variables globales
+ 
+extern unsigned int line;
+extern short hayError; // Un booleano seria perfecto pero no vale la pena importar la libreria, asi que usamos un short
+extern char* format; // Para formateo de la salida. Ver funcion calcularCaracteres()
 
 /*
 	COLORES
@@ -52,3 +56,16 @@ typedef struct NodoFuncion {
 void crearNodo(NodoFuncion**, char*, char*);
 void terminarFuncion(NodoFuncion*);
 void printearFuncion(NodoFuncion*);
+
+/*
+	SENTENCIAS
+*/
+
+typedef struct NodoSentencia {
+	char* tipo;
+	int linea;
+	struct NodoSentencia* siguiente;
+} NodoSentencia;
+
+void agregarSentencia(NodoSentencia**, NodoSentencia**, char*, int);
+void printearSentencia(NodoSentencia*);

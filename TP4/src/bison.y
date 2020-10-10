@@ -14,6 +14,9 @@ NodoDeclaracion* tail_declaraciones = NULL;
 NodoFuncion* head_funcion = NULL;
 NodoFuncion* tail_funcion = NULL;
 
+NodoSentencia* head_sentencia = NULL;
+NodoSentencia* tail_sentencia = NULL;
+
 FILE* yyin;
 
 #ifdef BDEBUG
@@ -23,9 +26,8 @@ FILE* yyin;
 %}
 
 %token <cadena> TIPO_DATO SIZEOF SHIFT_RIGHT SHIFT_LEFT GE_OP LE_OP OR_OP AND_OP NE_OP EQ_OP INC_OP DEC_OP
-%token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER STRING ENUM
+%token <cadena> CALIFICADOR_TIPO CLASE_ALMACENAMIENTO IDENTIFIER STRING ENUM CONSTANTE_CARACTER
 %token <cadena> SUM_ASSIGN SUB_ASSIGN DIV_ASSIGN MUL_ASSIGN MOD_ASSIGN PTR_ARROW STRUCT_UNION ELLIPSIS
-%token <caracter> CONSTANTE_CARACTER
 %token IF ELSE SWITCH WHILE DO FOR CASE DEFAULT CONTINUE BREAK RETURN GOTO
 
 %token <ival> DECIMAL_CONSTANT
@@ -51,7 +53,6 @@ FILE* yyin;
   long ival;
   double fval;
   char cadena[500];
-  char caracter;
 }
 
 %start unidad_traduccion
@@ -435,18 +436,18 @@ lista_inicializador:
 */
 
 sentencia:
-		sentencia_etiquetada
-	|	sentencia_compuesta
-	|	sentencia_expresion
-	|	sentencia_seleccion
-	|	sentencia_iteracion
-	|	sentencia_salto
+		sentencia_etiquetada	{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia etiquetada", line);}
+	|	sentencia_compuesta		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia compuesta", line);}
+	|	sentencia_expresion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia expresion", line);}
+	|	sentencia_seleccion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de seleccion", line);}
+	|	sentencia_iteracion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de iteracion", line);}
+	|	sentencia_salto			{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de salto", line);}
 ;
 
 sentencia_etiquetada:
-		IDENTIFIER ':' sentencia
-	|	CASE expresion_constante ':' sentencia
-	|	DEFAULT ':' sentencia
+		IDENTIFIER ':' sentencia 		{sprintf($$, "%s: %s", $1, $3);}
+	|	CASE expresion_constante ':' sentencia 		{sprintf($$, "CASE %s: %s", $2, $4);}
+	|	DEFAULT ':' sentencia {sprintf($$, "DEFAULT: %s", $3);}
 ;
 
 sentencia_compuesta:
@@ -546,12 +547,14 @@ int yyerror (char *s) {
 void main() {
 	setupFiles(&yyin);
   	yyparse();
+  	calcularCaracteres();
 	printearFuncion(head_funcion);
 	printearDeclaraciones(head_declaraciones);
+	printearSentencia(head_sentencia);
 
 	printearMensajeFinal();
 
 	// Pausa que anda en windows y linux
-	char pausa;
-	scanf("\n\nANALISIS FINALIZADO. PRESIONE CUALQUIER BOTON PARA SALIR.\n\n%c", pausa);
+	printf("\n\nANALISIS FINALIZADO. PRESIONE CUALQUIER BOTON PARA SALIR.\n\n");
+	char pausa = getc(stdin);
 }

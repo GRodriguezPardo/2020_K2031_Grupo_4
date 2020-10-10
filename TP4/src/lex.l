@@ -7,7 +7,7 @@
 #include "./headers/bison.tab.h"
 #include "./headers/funciones.h"
 
-int line = 0;
+unsigned int line = 0;
 short hayError = 0;
 %}
 DIGITO_DECIMAL [0-9] 

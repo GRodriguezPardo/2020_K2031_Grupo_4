@@ -1,5 +1,9 @@
 #include "../headers/funciones.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char* format;
 
 void setupFiles(FILE** yyin) {
    char input[50];
@@ -37,5 +41,18 @@ void printearMensajeFinal() {
       printf("[======================================] 100%c", 37);
       printf("\nANALISIS FINALIZADO CORRECTAMENTE");
    }
+   blanco();
+}
+
+void calcularCaracteres() {
+   char temp[6]; // El rango de int es [0-65535] + '\0'
+   sprintf(temp, "%d", line);
+   format = malloc(3 + strlen(temp)); // Nunca va a ser mas de 8 caracteres. Es % + [0-65535] + s
+   sprintf(format, "%c%dd", 37, (int) strlen(temp));
+}
+
+void imprimirLinea(int linea) {
+   amarillo(0);
+   printf(format, linea);
    blanco();
 }
