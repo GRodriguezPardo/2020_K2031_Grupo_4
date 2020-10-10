@@ -109,7 +109,7 @@ expresion_unaria:
 ;
 
 unary_op:
-		'&' {strcat($$, "$");}
+		'&' {strcat($$, "&");}
 	|	'*' {strcpy($$, "*");}
 	|	'+' {strcat($$, "+");}
 	|	'-' {strcat($$, "-");}
