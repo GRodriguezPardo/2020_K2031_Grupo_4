@@ -78,5 +78,8 @@ typedef struct NodoError {
 	struct NodoError* siguiente;
 } NodoError;
 
+extern NodoError* head_errores;
+extern NodoError* tail_errores;
+
 void agregarError(NodoError**, int);
 void printearErrores(NodoError*);

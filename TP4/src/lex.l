@@ -7,7 +7,7 @@
 #include "./headers/bison.tab.h"
 #include "./headers/funciones.h"
 
-unsigned int line = 0;
+unsigned int line = 1;
 short hayError = 0;
 %}
 DIGITO_DECIMAL [0-9] 
@@ -76,7 +76,6 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 
 "//".* {
-      line++;
 }
 
 "#define ".* {}
@@ -136,7 +135,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       // No hacemos nada
 }
 
-"\n\r"|"\r\n"|"\n"|"\r" {
+"\n"|"\r\n"|"\r" {
       line++;
 }
 
@@ -145,21 +144,11 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 
 . {
-      printf("\n");
-      amarillo(0);
-      printf("Linea %d", line);
-      blanco();
-      printf(" | ");
-      rojo(1);
-      printf("ERROR LEXICO");
-      blanco();
-      printf(" | ");
-      verde(0);
-      printf(" %s", yytext);
-      blanco();
-      printf("\n");
-
       hayError = 1;
+      agregarError(&tail_errores, line);
+
+      if(head_errores == NULL)
+            head_errores = tail_errores;
 }
 
 
