@@ -521,13 +521,12 @@ declaracion_externa:
 ;
 
 declaracion_funcion:
-		especificadores_declaracion declarador <cadena>{
+		especificadores_declaracion declarador sentencia_compuesta {
 			crearNodo(&tail_funcion, $1, $2);
-
-			if(head_funcion == NULL)
+			terminarFuncion(tail_funcion);
+		if(head_funcion == NULL)
 				head_funcion = tail_funcion;
-		} 
-		sentencia_compuesta <cadena>{terminarFuncion(tail_funcion);}
+		}
 	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
 	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
 	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
