@@ -17,6 +17,9 @@ NodoFuncion* tail_funcion = NULL;
 NodoSentencia* head_sentencia = NULL;
 NodoSentencia* tail_sentencia = NULL;
 
+NodoError* head_errores = NULL;
+NodoError* tail_errores = NULL;
+
 FILE* yyin;
 
 #ifdef BDEBUG
@@ -453,9 +456,7 @@ sentencia_etiquetada:
 sentencia_compuesta:
 		'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
 	|	'{' lista_bloque_codigo '}' {sprintf($$, "{%s}", $2);}
-	/*|	'{' lista_sentencia '}'	{sprintf($$, "{%s}", $2);}
-	|	'{' lista_declaraciones '}'	{sprintf($$, "{%s}", $2);}
-	|	'{' lista_declaraciones lista_sentencia '}'	{sprintf($$, "{%s %s}", $2, $3);}*/
+	|	error '}'
 ;
 
 lista_bloque_codigo:
@@ -481,11 +482,13 @@ lista_declaraciones:
 sentencia_expresion:
 		';'	{strcpy($$, ";");}
 	|	expresion ';'	{strcat($$, ";");}
+	|	error ';'
 ;
 
 sentencia_seleccion:
 		IF '(' expresion ')' sentencia opcion_else	{sprintf($$, "if (%s) %s %s", $3, $5, $6);}
 	|	SWITCH '(' expresion ')' sentencia	{sprintf($$, "switch (%s) %s", $3, $5);}
+	|	error '}'
 ;
 
 opcion_else:
@@ -500,6 +503,7 @@ sentencia_iteracion:
 	|	FOR '(' sentencia_expresion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
 	|	FOR '(' declaracion sentencia_expresion ')' sentencia	{sprintf($$, "for(%s%s) %s", $3, $4, $6);}
 	|	FOR '(' declaracion sentencia_expresion expresion ')' sentencia	{sprintf($$, "for(%s%s%s) %s", $3, $4, $5, $7);}
+	|	error '}'
 ;
 
 sentencia_salto:
@@ -508,6 +512,7 @@ sentencia_salto:
 	|	BREAK ';'	{strcpy($$, "break;");}
 	|	RETURN ';'	{strcpy($$, "return;");}
 	|	RETURN expresion ';'		{sprintf($$, "return %s;", $2);}
+	|	error ';'
 ;
 
 unidad_traduccion:
@@ -516,17 +521,12 @@ unidad_traduccion:
 ;
 
 declaracion_externa:
-		declaracion_funcion
+		declaracion_funcion {if(head_funcion == NULL) head_funcion = tail_funcion;}
 	|	declaracion
 ;
 
 declaracion_funcion:
-		especificadores_declaracion declarador sentencia_compuesta {
-			crearNodo(&tail_funcion, $1, $2);
-			terminarFuncion(tail_funcion);
-		if(head_funcion == NULL)
-				head_funcion = tail_funcion;
-		}
+		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
 	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
 	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
 	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
@@ -535,8 +535,12 @@ declaracion_funcion:
 %%
 
 int yyerror (char *s) {
-  printf ("\n\nLinea %d | Error: %s\n\n", line, yylval.cadena);
-  hayError = 1;
+	hayError = 1;
+
+	agregarError(&tail_errores, line);
+
+	if(head_errores == NULL)
+		head_errores = tail_errores;
 }
 
 //	Estas regla sirven de algo?
@@ -550,10 +554,12 @@ void main() {
 	printearFuncion(head_funcion);
 	printearDeclaraciones(head_declaraciones);
 	printearSentencia(head_sentencia);
+	printearErrores(head_errores);
 
 	printearMensajeFinal();
 
 	// Pausa que anda en windows y linux
-	printf("\n\nANALISIS FINALIZADO. PRESIONE CUALQUIER BOTON PARA SALIR.\n\n");
-	char pausa = getc(stdin);
+	printf("\n\n\tANALISIS FINALIZADO. INGRESE CUALQUIER COSA PARA SALIR.\n\n");
+	char* pausa;
+	scanf("%s", pausa);
 }

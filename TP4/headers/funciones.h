@@ -48,8 +48,7 @@ void printearDeclaraciones(NodoDeclaracion*);
 typedef struct NodoFuncion {
 	char* especificadores;
 	char* declarador;
-	int inicio;
-	int final;
+	int linea;
 	struct NodoFuncion* siguiente;
 } NodoFuncion;
 
@@ -69,3 +68,15 @@ typedef struct NodoSentencia {
 
 void agregarSentencia(NodoSentencia**, NodoSentencia**, char*, int);
 void printearSentencia(NodoSentencia*);
+
+/*
+	ERRORES
+*/
+
+typedef struct NodoError {
+	int linea;
+	struct NodoError* siguiente;
+} NodoError;
+
+void agregarError(NodoError**, int);
+void printearErrores(NodoError*);

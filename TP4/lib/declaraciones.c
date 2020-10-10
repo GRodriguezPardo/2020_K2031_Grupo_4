@@ -25,20 +25,21 @@ void agregarDeclaracion(NodoDeclaracion** tail, char* especificadores, char* dec
 void printearDeclaraciones(NodoDeclaracion* head) {
 	if(head != NULL) {
 		printf("\n\n");
-		printf("-----------------\n");
-		printf("  DECLARACIONES\n");
-		printf("-----------------\n\n");
+		printf("\t-----------------\n");
+		printf("\t  DECLARACIONES\n");
+		printf("\t-----------------\n\n");
 
 		amarillo(0);
-		printf("• Linea");
+		printf("\t- Linea");
 		printf("     ");
 		rojo(1);
-		printf("• Tipo dato");
+		printf("- Tipo dato");
 		printf("     ");
 		verde(0);
-		printf("• Declaracion\n\n");
+		printf("- Declaracion\n\n");
 
 		while(head != NULL) {
+			printf("\t");
 			imprimirLinea(head->linea);
 			printf(" | ");
 			rojo(1);

@@ -35,11 +35,11 @@ void printearMensajeFinal() {
 
    if(hayError == 1) {
       rojo(1);
-      printf("ANALISIS FINALIZADO CON ERRORES");
+      printf("\tANALISIS FINALIZADO CON ERRORES");
    } else {
       verde(1);
-      printf("[======================================] 100%c", 37);
-      printf("\nANALISIS FINALIZADO CORRECTAMENTE");
+      printf("\t[======================================] 100%c", 37);
+      printf("\n\tANALISIS FINALIZADO CORRECTAMENTE");
    }
    blanco();
 }

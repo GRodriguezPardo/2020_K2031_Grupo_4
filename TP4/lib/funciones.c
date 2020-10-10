@@ -11,7 +11,7 @@ void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador) {
 	strcpy(newNode->especificadores, especificadores);
 	strcpy(newNode->declarador, declarador);
 
-	newNode->inicio = line;
+	newNode->linea = line;
 
 	newNode->siguiente = NULL;
 
@@ -21,30 +21,25 @@ void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador) {
 	*tail = newNode;
 }
 
-void terminarFuncion(NodoFuncion* tail) {
-	tail->final = line;
-}
-
 void printearFuncion(NodoFuncion* head) {
 	if(head != NULL) {
 		printf("\n\n");
-		printf("-----------------\n");
-		printf("  FUNCIONES\n");
-		printf("-----------------\n\n");
+		printf("\t-----------------\n");
+		printf("\t  FUNCIONES\n");
+		printf("\t-----------------\n\n");
 
 		amarillo(0);
-		printf("• Linea");
+		printf("\t- Linea");
 		printf("     ");
 		rojo(1);
-		printf("• Tipo dato");
+		printf("- Tipo dato");
 		printf("     ");
 		verde(0);
-		printf("• Declaracion\n\n");
+		printf("- Declaracion\n\n");
 
 		while(head != NULL) {
-			imprimirLinea(head->inicio);
-			printf(" | ");
-			imprimirLinea(head->final);
+			printf("\t");
+			imprimirLinea(head->linea);
 			printf(" | ");
 			rojo(1);
 			printf("%s", head->especificadores);

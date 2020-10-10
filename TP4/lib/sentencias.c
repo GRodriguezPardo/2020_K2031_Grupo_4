@@ -22,17 +22,18 @@ void agregarSentencia(NodoSentencia** head, NodoSentencia** tail,char* tipo, int
 void printearSentencia(NodoSentencia* head) {
 	if(head != NULL) {
 		printf("\n\n");
-		printf("--------------\n");
-		printf("  SENTENCIAS\n");
-		printf("--------------\n\n");
+		printf("\t--------------\n");
+		printf("\t  SENTENCIAS\n");
+		printf("\t--------------\n\n");
 
 		amarillo(0);
-		printf("• Linea");
+		printf("\t- Linea");
 		printf("     ");
 		verde(0);
-		printf("• Tipo de sentencia\n\n");
+		printf("- Tipo de sentencia\n\n");
 
 		while(head != NULL) {
+			printf("\t");
 			imprimirLinea(head->linea);
 			printf(" | ");
 			verde(1);
