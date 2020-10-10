@@ -533,7 +533,7 @@ declaracion_funcion:
 int yyerror (char *s) {
 	hayError = 1;
 
-	agregarError(&tail_errores, line);
+	agregarError(&tail_errores, line, "sintactico");
 
 	if(head_errores == NULL)
 		head_errores = tail_errores;

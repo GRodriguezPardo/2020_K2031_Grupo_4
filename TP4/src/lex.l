@@ -145,7 +145,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 . {
       hayError = 1;
-      agregarError(&tail_errores, line);
+      agregarError(&tail_errores, line, "lexico");
 
       if(head_errores == NULL)
             head_errores = tail_errores;

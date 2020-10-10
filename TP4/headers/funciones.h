@@ -75,11 +75,12 @@ void printearSentencia(NodoSentencia*);
 
 typedef struct NodoError {
 	int linea;
+	char* tipo;
 	struct NodoError* siguiente;
 } NodoError;
 
 extern NodoError* head_errores;
 extern NodoError* tail_errores;
 
-void agregarError(NodoError**, int);
+void agregarError(NodoError**, int, char*);
 void printearErrores(NodoError*);
