@@ -556,6 +556,6 @@ void main() {
 
 	// Pausa que anda en Windows y Linux
 	printf("\n\n\tANALISIS FINALIZADO. INGRESE CUALQUIER COSA PARA SALIR.\n\n");
-	char* pausa;
+	char* pausa = malloc(10);
 	scanf("%s", pausa);
 }
