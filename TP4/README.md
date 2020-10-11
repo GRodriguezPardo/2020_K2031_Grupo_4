@@ -5,7 +5,7 @@ Por como esta hecho el Makefile, hay que tener esto en cuenta:
 
 ## SOBRE EL MAKEFILE
 
-Si se va a correr el archivo en la consola de Windows (CMD) se debe compilar con `make windows`. Recomendamos correr solo `make` y correr el archivo con *bash* ya que se va a ver mejor (tiene colores).
+Si se va a correr el archivo en la consola de Windows (CMD) se debe compilar con `make windows`. Recomendamos correr solo `make` y correr el archivo con **bash** ya que se va a ver mejor (tiene colores).
 
 ## Anotaciones importantes
 
