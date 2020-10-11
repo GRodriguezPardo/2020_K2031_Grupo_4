@@ -523,9 +523,9 @@ declaracion_externa:
 
 declaracion_funcion:
 		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
-	|	declarador sentencia_compuesta {sprintf($$ + strlen($$), " %s", $2);}
-	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s %s", $2, $3, $4);}
-	|	declarador lista_declaraciones sentencia_compuesta {sprintf($$ + strlen($$), " %s %s", $2, $3);}
+	|	declarador sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
+	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
+	|	declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
 ;
 
 %%
