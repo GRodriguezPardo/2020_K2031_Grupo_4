@@ -49,7 +49,6 @@ FILE* yyin;
 %type <cadena> declarador_abstracto_directo inicializador lista_inicializador sentencia sentencia_etiquetada sentencia_compuesta
 %type <cadena> sentencia_expresion sentencia_seleccion opcion_else sentencia_iteracion sentencia_salto unidad_traduccion declaracion_externa
 %type <cadena> declaracion_funcion expresion_constante lista_argumentos_2 opt_declaracion nombre_tipo opt_nombre_tipo bloque_codigo lista_declaraciones
-
 // %type <cadena> lista_sentencia
 
 %union {
@@ -236,6 +235,7 @@ declaracion:
 			if(head_declaraciones == NULL)
 				head_declaraciones = tail_declaraciones;
 		}
+		|	error ';'
 ;
 
 opt_declaracion:
@@ -270,6 +270,7 @@ especificador_tipo:
 		TIPO_DATO
 	|	especificador_struct_union
 	|	especificador_enum
+	// Aca falta el TIPO_TYPEDEF
 ;
 
 //	|	TIPO_TYPEDEF  -> Se necesita TS para implementar
@@ -445,7 +446,7 @@ sentencia:
 	|	sentencia_seleccion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de seleccion", line);}
 	|	sentencia_iteracion		{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de iteracion", line);}
 	|	sentencia_salto			{agregarSentencia(&head_sentencia, &tail_sentencia, "Sentencia de salto", line);}
-	|	error 					{}
+	|	error
 ;
 
 sentencia_etiquetada:
@@ -457,6 +458,7 @@ sentencia_etiquetada:
 sentencia_compuesta:
 		'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
 	|	'{' lista_bloque_codigo '}' {sprintf($$, "{%s}", $2);}
+	|	error '}'
 ;
 
 lista_bloque_codigo:
@@ -482,6 +484,7 @@ lista_declaraciones:
 sentencia_expresion:
 		';'	{strcpy($$, ";");}
 	|	expresion ';'	{strcat($$, ";");}
+	|	error ';'
 ;
 
 sentencia_seleccion:
@@ -509,11 +512,13 @@ sentencia_salto:
 	|	BREAK ';'	{strcpy($$, "break;");}
 	|	RETURN ';'	{strcpy($$, "return;");}
 	|	RETURN expresion ';'		{sprintf($$, "return %s;", $2);}
+	|	error ';'
 ;
 
 unidad_traduccion:
 		declaracion_externa
 	|	unidad_traduccion declaracion_externa
+	|	error {} // El peor caso seria que se recupere aca
 ;
 
 declaracion_externa:
@@ -526,6 +531,7 @@ declaracion_funcion:
 	|	declarador sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
 	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
 	|	declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
+	|	error "}"	{}
 ;
 
 %%
