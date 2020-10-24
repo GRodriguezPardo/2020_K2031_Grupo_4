@@ -1,0 +1,10 @@
+compile
+lex.yy.c
+bison.tab.c
+headers/*.h.gch
+a.out
+headers/bison.tab.h
+bison.output
+tp2.c
+prueba.c
+*.exe
