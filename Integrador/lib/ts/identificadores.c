@@ -7,9 +7,9 @@
 
 // Verifica que el identificador no este asignado
 _Bool identificadorLibre(ts_iden* head, char* identificador) {
-	while(head != NULL && head != 0x8) {
-		//if(strcmp(head->identificador, identificador) == 0)
-		//	return false;
+	while(head != NULL) {
+		if(strcmp(head->identificador, identificador) == 0)
+			return false;
 
 		head = head->siguiente;
 	}
@@ -103,7 +103,7 @@ void ts_analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* espe
 		}
 
 		if(error)
-			crearErrorSintactico("Doble declaracion de identificador");
+			crearErrorSemantico("Doble declaracion de identificador");
 
 		decla = separarDeclaraciones(NULL);
 	}

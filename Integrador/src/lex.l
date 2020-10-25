@@ -4,11 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "./headers/bison.tab.h"
 #include "./headers/funciones.h"
 
 unsigned int line = 1;
-short hayError = 0;
+_Bool hayError = 0;
 %}
 %x C_COMMENT
 
@@ -156,7 +157,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 }
 
 . { 
-      hayError = 1;
+      hayError = true;
       agregarError(&tail_errores, line, "lexico");
 
       if(head_errores == NULL)

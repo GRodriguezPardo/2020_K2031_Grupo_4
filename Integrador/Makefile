@@ -5,7 +5,7 @@ HEADERS = $(patsubst %,$(HEAD_DIR)/%,$(_HEADERS))
 _LIB =
 LDIR = ./lib
 
-_TS = identificadores.o tipos.o errorSintactico.o
+_TS = identificadores.o tipos.o errorSemantico.o
 
 _OBJ = lex.yy.o bison.tab.o str_func.o archivosComentarios.o declaraciones.o colores.o funciones.o sentencias.o errores.o $(_TS)
 ODIR = ./compile

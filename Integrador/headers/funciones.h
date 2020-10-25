@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 void setupFiles(FILE**);
 void contarLineas(char*);
@@ -13,7 +14,7 @@ void imprimirLinea(int);
 // Algunas variables globales
  
 extern unsigned int line;
-extern short hayError; // Un booleano seria perfecto pero no vale la pena importar la libreria, asi que usamos un short
+extern _Bool hayError; // Un booleano seria perfecto pero no vale la pena importar la libreria, asi que usamos un short
 extern char* format; // Para formateo de la salida. Ver funcion calcularCaracteres()
 
 /*
@@ -83,6 +84,6 @@ typedef struct NodoError {
 extern NodoError* head_errores;
 extern NodoError* tail_errores;
 
-void crearErrorSintactico(char*);
+void crearErrorSemantico(char*);
 void agregarError(NodoError**, int, char*);
 void printearErrores(NodoError*);

@@ -543,7 +543,7 @@ declaracion_funcion:
 %%
 
 int yyerror (char *s) {
-	hayError = 1;
+	hayError = true;
 
 	agregarError(&tail_errores, line, "sintactico");
 
