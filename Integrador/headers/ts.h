@@ -43,7 +43,6 @@ typedef struct ts_func {
 	struct ts_func* siguiente;
 } ts_func;
 
-_Bool identificadorLibre(ts_iden*, char*);
 void analizarDeclaracion(ts_iden**, ts_iden**, char*, char*);
 
 /*

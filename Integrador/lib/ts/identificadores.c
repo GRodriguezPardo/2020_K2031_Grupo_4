@@ -5,6 +5,14 @@
 #include "../../headers/ts.h"
 #include "../../headers/funciones.h"
 
+char* pos; // Usada por separarDeclaraciones()
+
+_Bool identificadorLibre(ts_iden*, char*);
+void agregarVariable(ts_iden**, short, short, char*);
+void sacarAsteriscos(char**);
+void iterarHastaSeparador(char**, char);
+char* separarDeclaraciones(char*);
+
 // Verifica que el identificador no este asignado
 _Bool identificadorLibre(ts_iden* head, char* identificador) {
 	while(head != NULL) {
@@ -13,7 +21,6 @@ _Bool identificadorLibre(ts_iden* head, char* identificador) {
 
 		head = head->siguiente;
 	}
-
 	return true;
 }
 
@@ -41,8 +48,6 @@ void sacarAsteriscos(char** str) {
 	*str = malloc(strlen(aux) + 1 - i);
 	strcpy(*str, aux + i);
 }
-
-char* pos; // Usada por separarDeclaraciones()
 
 void iterarHastaSeparador(char** aux, char extra) {
 	while((*aux)[0] != ',' && (*aux)[0] !=';' && (*aux)[0] != extra) {
