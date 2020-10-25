@@ -22,6 +22,21 @@ concatenarStrings(&posicion, 30, 2, " %s", "string1", "\n\n %s 2 \n", "string2")
 
 */
 
+char* trimStr(char* str) {
+    while(str[0] == ' ' && str[0] != '\0')
+      str++;
+
+    char* final = str + strlen(str) - 1;
+
+    while(final[0] == ' ' && final > str)
+        final--;
+
+    char* ret = malloc(final - str + 2);
+    strncpy(ret, str, final - str + 1);
+  
+    return ret;
+}
+
 void concatenarStrings(char** address, int args, ...) {
   va_list valist;
   va_start(valist, args);

@@ -7,9 +7,9 @@
 
 // Verifica que el identificador no este asignado
 _Bool identificadorLibre(ts_iden* head, char* identificador) {
-	while(head != NULL) {
-		if(strcmp(head->identificador, identificador) == 0)
-			return false;
+	while(head != NULL && head != 0x8) {
+		//if(strcmp(head->identificador, identificador) == 0)
+		//	return false;
 
 		head = head->siguiente;
 	}
@@ -23,13 +23,12 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 	strcpy(nuevoNodo->identificador, identificador);
 	nuevoNodo->tipo = tipo;
 	nuevoNodo->puntero = puntero;
+	nuevoNodo->siguiente = NULL;
 
 	if(*tail != NULL)
 		(*tail)->siguiente = nuevoNodo;
-	else
-		*tail = nuevoNodo;
 
-	nuevoNodo->siguiente = NULL;
+	*tail = nuevoNodo;
 }
 
 void sacarAsteriscos(char** str) {
@@ -43,32 +42,69 @@ void sacarAsteriscos(char** str) {
 	strcpy(*str, aux + i);
 }
 
-/*
-	ESTA FUNCION NO RECONOCE BIEN LOS ARRAYS
-*/
+char* pos; // Usada por separarDeclaraciones()
 
-void analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* especificadores, char* declaraciones) {
+void iterarHastaSeparador(char** aux, char extra) {
+	while((*aux)[0] != ',' && (*aux)[0] !=';' && (*aux)[0] != extra) {
+		if((*aux)[0] == '(') {
+			while((*aux)[0] != ')')
+				(*aux)++;
+		}
+		(*aux)++;
+	}
+}
+
+char* separarDeclaraciones(char* str) {
+	if(str != NULL)
+		pos = str;
+
+	char* aux = pos;
+
+	if(aux[0] == ';' || aux[0] == '\0')
+		return NULL;
+
+	iterarHastaSeparador(&aux, '=');
+
+	char* ret = malloc(aux - pos + 1);
+	strncpy(ret, pos, aux - pos);
+	ret = trimStr(ret);
+	
+	iterarHastaSeparador(&aux, -1); // Si se paro en un '=' va a seguir hasta la proxima coma o punto y coma
+
+	if(aux[0] == ',')
+		aux++;
+
+	pos = aux;
+	return ret;
+}
+
+void ts_analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* especificadores, char* declaraciones) {
 	short tipo = encontrarTipo(especificadores);
 	short puntero = tipoPuntero(declaraciones);
 	sacarAsteriscos(&declaraciones);
 
-	char* decla = strtok(declaraciones, ",");
+	char* decla = separarDeclaraciones(declaraciones);
 
 	while(decla != NULL) {
-		if(identificadorLibre(*head_iden, decla)) {
+		_Bool esFuncion = strstr(decla, "(");
+		_Bool error = false;
 
-			_Bool esFuncion = strstr(decla, "(") != NULL;
+		if(esFuncion) {
 
-			if(esFuncion) {
-
-			} else {
+		} else {
+			if(identificadorLibre(*head_iden, decla)) {
 				agregarVariable(tail_iden, tipo, puntero, decla);
+ 				ts_iden* aux = *head_iden;
+
 				if(*head_iden == NULL)
 					*head_iden = *tail_iden;
-			}
-		} else
+			} else
+				error = true;
+		}
+
+		if(error)
 			crearErrorSintactico("Doble declaracion de identificador");
 
-		decla = strtok(NULL, ",");
+		decla = separarDeclaraciones(NULL);
 	}
 }

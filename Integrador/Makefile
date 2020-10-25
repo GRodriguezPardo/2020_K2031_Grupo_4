@@ -7,7 +7,7 @@ LDIR = ./lib
 
 _TS = identificadores.o tipos.o errorSintactico.o
 
-_OBJ = lex.yy.o bison.tab.o concatenarString.o archivosComentarios.o declaraciones.o colores.o funciones.o sentencias.o errores.o $(_TS)
+_OBJ = lex.yy.o bison.tab.o str_func.o archivosComentarios.o declaraciones.o colores.o funciones.o sentencias.o errores.o $(_TS)
 ODIR = ./compile
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 

@@ -236,7 +236,7 @@ FIN EXPRESION
 declaracion:
 		especificadores_declaracion opt_declaracion {
 			agregarDeclaracion(&tail_declaraciones, $1, $2);
-			//analizarDeclaracion(&head_declaraciones, &tail_declaraciones, $1, $2);
+			ts_analizarDeclaracion(&head_iden, &tail_iden, $1, $2);
 
 			if(head_declaraciones == NULL)
 				head_declaraciones = tail_declaraciones;

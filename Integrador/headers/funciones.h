@@ -5,6 +5,7 @@ void contarLineas(char*);
 
 void concatenarStrings(char**, int, ...);
 void copiarStrings(char**, int, ...);
+char* trimStr(char*);
 
 void printearMensajeFinal();
 void calcularCaracteres();
