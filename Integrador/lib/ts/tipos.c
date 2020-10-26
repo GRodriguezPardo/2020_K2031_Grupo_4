@@ -5,7 +5,7 @@
 
 short tipoPuntero(char* str) {
 	short tipo = 0;
-	for(int i = 0; i < strlen(str) && (str[i] == ' ' || str[i] == ' '); i++)
+	for(int i = 0; i < strlen(str) && (str[i] == ' ' || str[i] == '*'); i++)
 		if(str[i] == '*')
 			tipo++;
 

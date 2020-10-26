@@ -32,6 +32,8 @@ typedef struct ts_iden {
 	short tipo;
 	short puntero;
 	char* identificador;
+	short dimArray; // Dimension del array - Ej: int a[][5] es un array de dimension 2
+	int* arrSize; // Cantidad de lugares del array - Ej: para int a[][5] va a ser arrSize[0] = NULL, arrSize[1] = 5
 	struct ts_iden* siguiente;
 } ts_iden;
 
