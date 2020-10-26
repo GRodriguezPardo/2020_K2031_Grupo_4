@@ -5,8 +5,6 @@
 #include "../../headers/ts.h"
 #include "../../headers/funciones.h"
 
-char* pos; // Usada por separarDeclaraciones()
-
 _Bool identificadorLibre(ts_iden*, char*);
 void agregarVariable(ts_iden**, short, short, char*);
 void sacarAsteriscos(char**);
@@ -67,6 +65,7 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 
 	// La posibilidad de error sintactico en la definicion de array esta dentro de la funcion obtenerInformacionArray
 	if(obtenerInformacionArray(identificador, &(nuevoNodo->dimArray), &(nuevoNodo->arrSize))) {
+		// Este while saca los [][] en caso de que haya (si es un array) para dejar solo el identificador
 		int i = 0;
 		while(i < strlen(identificador)) {
 			if(identificador[i] == '[') {
@@ -122,27 +121,32 @@ void iterarHastaSeparador(char** aux, char extra) {
 	NULL -> Fin
 */
 char* separarDeclaraciones(char* str) {
+	static char* pos;
+
 	if(str != NULL)
 		pos = str;
 
-	char* aux = pos;
+	if(pos != NULL) { // Por las dudas
+		char* aux = pos;
 
-	if(aux[0] == ';' || aux[0] == '\0')
+		if(aux[0] == ';' || aux[0] == '\0')
+			return NULL;
+
+		iterarHastaSeparador(&aux, '=');
+
+		char* ret = malloc(aux - pos + 1);
+		strncpy(ret, pos, aux - pos);
+		ret = trimStr(ret);
+		
+		iterarHastaSeparador(&aux, -1); // Si se paro en un '=' va a seguir hasta la proxima coma o punto y coma
+
+		if(aux[0] == ',')
+			aux++;
+
+		pos = aux;
+		return ret;
+	} else
 		return NULL;
-
-	iterarHastaSeparador(&aux, '=');
-
-	char* ret = malloc(aux - pos + 1);
-	strncpy(ret, pos, aux - pos);
-	ret = trimStr(ret);
-	
-	iterarHastaSeparador(&aux, -1); // Si se paro en un '=' va a seguir hasta la proxima coma o punto y coma
-
-	if(aux[0] == ',')
-		aux++;
-
-	pos = aux;
-	return ret;
 }
 
 void ts_analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* especificadores, char* declaraciones) {

@@ -567,13 +567,13 @@ void main() {
 	printearMensajeFinal();
 
 	/*
-	Para debug nomas
+	//Para debug nomas
 
 	while(head_iden != NULL) {
 		printf("\n\nIDENTIFICADOR: %s", head_iden->identificador);
 		printf("\nTIPO: %d", (int) head_iden->tipo);
 		printf("\nPUNTERO: %d", (int) head_iden->puntero);
-		printf("\nDIM ARRAYL: %d", (int) head_iden->dimArray);
+		printf("\nDIM ARRAY: %d", (int) head_iden->dimArray);
 		for(int i = 0; i < head_iden->dimArray; i++) {
 			printf("\n%d", (head_iden->arrSize)[i]);
 		}
