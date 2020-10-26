@@ -67,6 +67,16 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 
 	// La posibilidad de error sintactico en la definicion de array esta dentro de la funcion obtenerInformacionArray
 	if(obtenerInformacionArray(identificador, &(nuevoNodo->dimArray), &(nuevoNodo->arrSize))) {
+		int i = 0;
+		while(i < strlen(identificador)) {
+			if(identificador[i] == '[') {
+				identificador[i] = '\0';
+				// El strcpy va a copiar solo hasta i. No preocuparse por la memoria "perdida" porque es stack memory (se limpia sola)
+				break;
+			}
+			i++;
+		}
+
 		nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
 		strcpy(nuevoNodo->identificador, identificador);
 		nuevoNodo->tipo = tipo;
