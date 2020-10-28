@@ -166,8 +166,13 @@ void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaracion
 		i++;
 	declaraciones[i] = ';';
 
+	//printf("\n\n--- %s", declaraciones);
+
 	// Analizamos cada argumento de la funcion
 	char* decla = separarDeclaraciones(&declaraciones);
+	/*
+	Dentro de cada nodo de funcion hay una lista de argumentos
+	*/
 
 	while(decla != NULL) {
 		ts_iden* nuevaVar = (ts_iden*) malloc(sizeof(ts_iden));
@@ -204,12 +209,15 @@ void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores, char* decl
 		_Bool error = false;
 
 		if(esFuncion) {
-			char* aux = decla;
+			// strtok modifica el string asi que hay que copiarla
+			char* aux = malloc(strlen(decla) + 1);
+			strcpy(aux, decla);
 			char* identificador = strtok(aux, "(");
+			char* args = identificador + strlen(identificador) + 1;
 			if(identificadorLibre(*ts, identificador)) {
-				agregarFuncion(&(ts->tail_func), tipo, puntero, strtok(aux, ")"), identificador);
+				agregarFuncion(&(ts->tail_func), tipo, puntero, args, identificador);
 
-				if(ts->head_func = NULL)
+				if(ts->head_func == NULL)
 					ts->head_func = ts->tail_func;
 			} else
 				error = true;

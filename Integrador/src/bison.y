@@ -567,8 +567,9 @@ void main() {
 
 	
 	//Para debug nomas
+	/*ts_iden* head_iden = ts.head_iden;
 
-	/*while(head_iden != NULL) {
+	while(head_iden != NULL) {
 		printf("\n\nIDENTIFICADOR: %s", head_iden->identificador);
 		printf("\nTIPO: %d", (int) head_iden->tipo);
 		printf("\nPUNTERO: %d", (int) head_iden->puntero);
@@ -577,6 +578,30 @@ void main() {
 			printf("\n%d", (head_iden->arrSize)[i]);
 		}
 		head_iden = head_iden->siguiente;
+	}
+
+	printf("\n\n\nFUNCIONES\n\n\n");
+
+	ts_func* head_func = ts.head_func;
+
+	while(head_func != NULL) {
+		printf("\n\nFUNCION: %s", head_func->identificador);
+		printf("\nTIPO: %d", (int) head_func->tipo);
+		printf("\nPUNTERO: %d", (int) head_func->puntero);
+		ts_iden* var = head_func->head_args;
+
+		while(var != NULL) {
+		printf("\n\tIDENTIFICADOR: %s", var->identificador);
+		printf("\n\tTIPO: %d", (int) var->tipo);
+		printf("\n\tPUNTERO: %d", (int) var->puntero);
+		printf("\n\tDIM ARRAY: %d", (int) var->dimArray);
+		for(int i = 0; i < var->dimArray; i++) {
+			printf("\n\t%d", (var->arrSize)[i]);
+		}
+		var = var->siguiente;
+	}
+
+		head_func = head_func->siguiente;
 	}*/
 
 	// Pausa que anda en Windows y Linux
