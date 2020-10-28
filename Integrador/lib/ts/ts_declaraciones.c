@@ -5,12 +5,12 @@
 #include "../../headers/ts.h"
 #include "../../headers/funciones.h"
 
-_Bool identificadorLibre(ts_iden*, char*);
+_Bool identificadorLibre(tablaSimbolos, char*);
 void agregarVariable(ts_iden**, short, short, char*);
 void sacarAsteriscos(char**);
 void iterarHastaSeparador(char**, char);
-char* separarDeclaraciones(char*);
-_Bool obtenerInformacionArray(char*, short*, int**);
+char* separarDeclaraciones(char**);
+_Bool obtenerInformacionArray(char* decla, short* dimArray, int** arrSize);
 
 _Bool obtenerInformacionArray(char* decla, short* dimArray, int** arrSize) {
 	*dimArray = 0;
@@ -50,14 +50,24 @@ _Bool obtenerInformacionArray(char* decla, short* dimArray, int** arrSize) {
 }
 
 // Verifica que el identificador no este asignado
-_Bool identificadorLibre(ts_iden* head, char* identificador) {
-	while(head != NULL) {
-		if(strcmp(head->identificador, identificador) == 0)
-			return false;
+_Bool identificadorLibre(tablaSimbolos ts, char* identificador) {
+	_Bool libre = true;
 
-		head = head->siguiente;
+	ts_iden* head_iden = ts.head_iden;
+	while(head_iden != NULL && libre) {
+		if(strcmp(head_iden->identificador, identificador) == 0)
+			libre = false;
+		head_iden = head_iden->siguiente;
 	}
-	return true;
+
+	ts_func* head_func = ts.head_func;
+	while(head_func != NULL && libre) {
+		if(strcmp(head_func->identificador, identificador) == 0)
+			libre = false;
+		head_func = head_func->siguiente;
+	}
+
+	return libre;
 }
 
 void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identificador) {
@@ -120,22 +130,17 @@ void iterarHastaSeparador(char** aux, char extra) {
 	c
 	NULL -> Fin
 */
-char* separarDeclaraciones(char* str) {
-	static char* pos;
-
-	if(str != NULL)
-		pos = str;
-
-	if(pos != NULL) { // Por las dudas
-		char* aux = pos;
+char* separarDeclaraciones(char** str) {
+	if(*str != NULL) { // Por las dudas
+		char* aux = *str;
 
 		if(aux[0] == ';' || aux[0] == '\0')
 			return NULL;
 
 		iterarHastaSeparador(&aux, '=');
 
-		char* ret = malloc(aux - pos + 1);
-		strncpy(ret, pos, aux - pos);
+		char* ret = malloc(aux - *str + 1);
+		strncpy(ret, *str, aux - *str);
 		ret = trimStr(ret);
 		
 		iterarHastaSeparador(&aux, -1); // Si se paro en un '=' va a seguir hasta la proxima coma o punto y coma
@@ -143,31 +148,77 @@ char* separarDeclaraciones(char* str) {
 		if(aux[0] == ',')
 			aux++;
 
-		pos = aux;
+		*str = aux;
 		return ret;
 	} else
 		return NULL;
 }
 
-void ts_analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* especificadores, char* declaraciones) {
+void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaraciones, char* identificador) {
+	ts_func* nuevoNodo = (ts_func*) malloc(sizeof(ts_func));
+	nuevoNodo->tipo = tipo;
+	nuevoNodo->puntero = puntero;
+	nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
+	strcpy(nuevoNodo->identificador, identificador);
+	// Adaptamos las declaraciones para poder usar la funcion separarDeclaraciones
+	int i = 0;
+	while(declaraciones[i] != ')')
+		i++;
+	declaraciones[i] = ';';
+
+	// Analizamos cada argumento de la funcion
+	char* decla = separarDeclaraciones(&declaraciones);
+
+	while(decla != NULL) {
+		ts_iden* nuevaVar = (ts_iden*) malloc(sizeof(ts_iden));
+		obtenerInformacionArray(decla, &(nuevaVar->dimArray), &(nuevaVar->arrSize));
+		nuevaVar->puntero = tipoPuntero(decla, false);
+		nuevaVar->tipo = encontrarTipo(decla);
+		nuevaVar->siguiente = NULL;
+
+		if(nuevoNodo->tail_args != NULL)
+			(nuevoNodo->tail_args)->siguiente = nuevaVar;
+		else
+			nuevoNodo->head_args = nuevaVar;
+
+		nuevoNodo->tail_args = nuevaVar;
+
+		decla = separarDeclaraciones(&declaraciones);
+	}
+
+	if(*tail != NULL)
+		(*tail)->siguiente = nuevoNodo;
+
+	*tail = nuevoNodo;
+}
+
+void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores, char* declaraciones) {
 	short tipo = encontrarTipo(especificadores);
-	short puntero = tipoPuntero(declaraciones);
+	short puntero = tipoPuntero(declaraciones, true);
 	sacarAsteriscos(&declaraciones);
 
-	char* decla = separarDeclaraciones(declaraciones);
+	char* decla = separarDeclaraciones(&declaraciones);
 
 	while(decla != NULL) {
 		_Bool esFuncion = strstr(decla, "(");
 		_Bool error = false;
 
 		if(esFuncion) {
+			char* aux = decla;
+			char* identificador = strtok(aux, "(");
+			if(identificadorLibre(*ts, identificador)) {
+				agregarFuncion(&(ts->tail_func), tipo, puntero, strtok(aux, ")"), identificador);
 
+				if(ts->head_func = NULL)
+					ts->head_func = ts->tail_func;
+			} else
+				error = true;
 		} else {
-			if(identificadorLibre(*head_iden, decla)) {
-				agregarVariable(tail_iden, tipo, puntero, decla);
+			if(identificadorLibre(*ts, decla)) {
+				agregarVariable(&(ts->tail_iden), tipo, puntero, decla);
 
-				if(*head_iden == NULL)
-					*head_iden = *tail_iden;
+				if(ts->head_iden == NULL)
+					ts->head_iden = ts->tail_iden;
 			} else
 				error = true;
 		}
@@ -175,6 +226,6 @@ void ts_analizarDeclaracion(ts_iden** head_iden, ts_iden** tail_iden, char* espe
 		if(error)
 			crearErrorSemantico("Doble declaracion de identificador");
 
-		decla = separarDeclaraciones(NULL);
+		decla = separarDeclaraciones(&declaraciones);
 	}
 }

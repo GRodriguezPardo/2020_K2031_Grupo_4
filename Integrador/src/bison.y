@@ -22,8 +22,7 @@ NodoSentencia* tail_sentencia = NULL;
 NodoError* head_errores = NULL;
 NodoError* tail_errores = NULL;
 
-ts_iden* head_iden = NULL;
-ts_iden* tail_iden = NULL;
+tablaSimbolos ts = {NULL, NULL, NULL, NULL};
 
 FILE* yyin;
 
@@ -236,7 +235,7 @@ FIN EXPRESION
 declaracion:
 		especificadores_declaracion opt_declaracion {
 			agregarDeclaracion(&tail_declaraciones, $1, $2);
-			ts_analizarDeclaracion(&head_iden, &tail_iden, $1, $2);
+			ts_analizarDeclaracion(&ts, $1, $2);
 
 			if(head_declaraciones == NULL)
 				head_declaraciones = tail_declaraciones;
@@ -566,10 +565,10 @@ void main() {
 
 	printearMensajeFinal();
 
-	/*
+	
 	//Para debug nomas
 
-	while(head_iden != NULL) {
+	/*while(head_iden != NULL) {
 		printf("\n\nIDENTIFICADOR: %s", head_iden->identificador);
 		printf("\nTIPO: %d", (int) head_iden->tipo);
 		printf("\nPUNTERO: %d", (int) head_iden->puntero);

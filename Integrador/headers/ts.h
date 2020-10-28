@@ -41,15 +41,23 @@ typedef struct ts_func {
 	short tipo;
 	short puntero;
 	char* identificador;
-	ts_iden* args;
+	ts_iden* head_args;
+	ts_iden* tail_args; // A menos que se defina la funcion, no van a tener identificador
 	struct ts_func* siguiente;
 } ts_func;
 
-void analizarDeclaracion(ts_iden**, ts_iden**, char*, char*);
+typedef struct tablaSimbolos {
+	ts_iden* head_iden;
+	ts_iden* tail_iden;
+	ts_func* head_func;
+	ts_func* tail_func;
+} tablaSimbolos;
+
+void analizarDeclaracion(tablaSimbolos*, char*, char*);
 
 /*
 	TIPOS
 */
 
-short tipoPuntero(char*);
+short tipoPuntero(char*, _Bool);
 short encontrarTipo(char*);
