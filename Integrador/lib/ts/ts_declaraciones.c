@@ -177,7 +177,14 @@ void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaracion
 	while(decla != NULL) {
 		ts_iden* nuevaVar = (ts_iden*) malloc(sizeof(ts_iden));
 		obtenerInformacionArray(decla, &(nuevaVar->dimArray), &(nuevaVar->arrSize));
-		nuevaVar->puntero = tipoPuntero(decla, false);
+
+		// No podemos usar la funcion tipoPuntero() por las declaraciones de tipo  char* [] (ejemplo)
+		nuevaVar->puntero = 0;
+
+		for(int i = 0; i < strlen(decla); i++)
+			if(decla[i] == '*')
+				(nuevaVar->puntero)++;
+
 		nuevaVar->tipo = encontrarTipo(decla);
 		nuevaVar->siguiente = NULL;
 
