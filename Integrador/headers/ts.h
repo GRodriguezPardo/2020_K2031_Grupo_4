@@ -32,8 +32,9 @@ typedef struct ts_iden {
 	short tipo;
 	short puntero;
 	char* identificador;
-	short dimArray; // Dimension del array - Ej: int a[][5] es un array de dimension 2
-	int* arrSize; // Cantidad de lugares del array - Ej: para int a[][5] va a ser arrSize[0] = NULL, arrSize[1] = 5
+	// Los arrays son tratados como punteros. Por ej: int a[5] es lo mismo que int* a
+	//short dimArray; // Dimension del array - Ej: int a[][5] es un array de dimension 2
+	//int* arrSize; // Cantidad de lugares del array - Ej: para int a[][5] va a ser arrSize[0] = NULL, arrSize[1] = 5
 	struct ts_iden* siguiente;
 } ts_iden;
 
@@ -53,7 +54,8 @@ typedef struct tablaSimbolos {
 	ts_func* tail_func;
 } tablaSimbolos;
 
-void analizarDeclaracion(tablaSimbolos*, char*, char*);
+void ts_analizarDeclaracion(tablaSimbolos*, char*, char*);
+void ts_analizarLlamada(char*, char*, ts_iden*, ts_func*);
 
 /*
 	TIPOS
@@ -61,3 +63,8 @@ void analizarDeclaracion(tablaSimbolos*, char*, char*);
 
 short tipoPuntero(char*, _Bool);
 short encontrarTipo(char*);
+_Bool esCompatible(short, short);
+short esConstante(char, short*);
+short obtenerPunteroArray(char*);
+ts_func* buscarFuncion(char*, ts_func*);
+ts_iden* buscarVariable(char*, ts_iden*);

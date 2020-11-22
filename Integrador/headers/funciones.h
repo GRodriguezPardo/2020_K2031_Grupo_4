@@ -4,8 +4,6 @@
 void setupFiles(FILE**);
 void contarLineas(char*);
 
-void concatenarStrings(char**, int, ...);
-void copiarStrings(char**, int, ...);
 char* trimStr(char*);
 
 void printearMensajeFinal();
@@ -40,7 +38,7 @@ typedef struct NodoDeclaracion {
 	struct NodoDeclaracion* siguiente;
 } NodoDeclaracion;
 
-void agregarDeclaracion(NodoDeclaracion**, char*, char*);
+void agregarDeclaracion(NodoDeclaracion**, char*, char*, int);
 void printearDeclaraciones(NodoDeclaracion*);
 
 /*
@@ -54,7 +52,7 @@ typedef struct NodoFuncion {
 	struct NodoFuncion* siguiente;
 } NodoFuncion;
 
-void crearNodo(NodoFuncion**, char*, char*);
+void crearNodo(NodoFuncion**, char*, char*, int);
 void terminarFuncion(NodoFuncion*);
 void printearFuncion(NodoFuncion*);
 

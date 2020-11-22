@@ -74,7 +74,7 @@ expresion_primaria:
 		IDENTIFIER
 	|	constante
 	|	STRING
-	|	'(' expresion ')' {sprintf($$ + strlen($$), "(%s)", $2);}
+	|	'(' expresion ')' {sprintf($$, "(%s)", $2);}
 ;
 
 /*
@@ -85,7 +85,7 @@ expresion_primaria:
 expresion_sufijo:
 		expresion_primaria
 	|	expresion_sufijo '[' expresion ']' {sprintf($$ + strlen($$), "[%s]", $3);}
-	|	expresion_sufijo '(' lista_argumentos_2 ')' {sprintf($$ + strlen($$), "(%s)", $3);}
+	|	expresion_sufijo '(' lista_argumentos_2 ')' {sprintf($$ + strlen($$), "(%s)", $3); ts_analizarLlamada($1, $3, ts.head_iden, ts.head_func);}
 	|	expresion_sufijo '.' IDENTIFIER {sprintf($$ + strlen($$), ".%s", $3);}
 	|	expresion_sufijo PTR_ARROW IDENTIFIER {sprintf($$ + strlen($$), "->%s", $3);}
 	|	expresion_sufijo INC_OP {strcat($$, "++");}
@@ -94,7 +94,7 @@ expresion_sufijo:
 
 lista_argumentos:
 		expresion_asignacion
-	|	lista_argumentos ',' expresion_asignacion {sprintf($$ + strlen($$), "%s, %s", $1, $3);}
+	|	lista_argumentos ',' expresion_asignacion {sprintf($$ + strlen($$), ", %s", $3);}
 ;
 
 lista_argumentos_2:
@@ -104,25 +104,25 @@ lista_argumentos_2:
 
 expresion_unaria:
 		expresion_sufijo
-	|	INC_OP expresion_unaria {sprintf($$ + strlen($$), "++%s", $2);}
-	|	DEC_OP expresion_unaria {sprintf($$ + strlen($$), "--%s", $2);}
-	|	unary_op expresion_conversion {sprintf($$ + strlen($$), "%s %s", $1, $2);}
-	|	SIZEOF expresion_unaria {sprintf($$ + strlen($$), "sizeof %s", $2);}
-	|	SIZEOF '(' nombre_tipo ')'	{sprintf($$ + strlen($$), "sizeof(%s)", $3);}
+	|	INC_OP expresion_unaria {sprintf($$, "++%s", $2);}
+	|	DEC_OP expresion_unaria {sprintf($$, "--%s", $2);}
+	|	unary_op expresion_conversion {sprintf($$, "%s %s", $1, $2);}
+	|	SIZEOF expresion_unaria {sprintf($$, "sizeof %s", $2);}
+	|	SIZEOF '(' nombre_tipo ')'	{sprintf($$, "sizeof(%s)", $3);}
 ;
 
 unary_op:
-		'&' {strcat($$, "&");}
+		'&' {strcpy($$, "&");}
 	|	'*' {strcpy($$, "*");}
-	|	'+' {strcat($$, "+");}
-	|	'-' {strcat($$, "-");}
-	|	'~' {strcat($$, "~");}
-	|	'!' {strcat($$, "!");}
+	|	'+' {strcpy($$, "+");}
+	|	'-' {strcpy($$, "-");}
+	|	'~' {strcpy($$, "~");}
+	|	'!' {strcpy($$, "!");}
 ;
 
 expresion_conversion:
 		expresion_unaria
-	|	'(' nombre_tipo ')' expresion_conversion {sprintf($$ + strlen($$), "(%s) %s", $2, $4);}
+	|	'(' nombre_tipo ')' expresion_conversion {sprintf($$, "(%s) %s", $2, $4);}
 ;
 
 expresion_multiplicativa:
@@ -234,7 +234,7 @@ FIN EXPRESION
 
 declaracion:
 		especificadores_declaracion opt_declaracion {
-			agregarDeclaracion(&tail_declaraciones, $1, $2);
+			agregarDeclaracion(&tail_declaraciones, $1, $2, line);
 			ts_analizarDeclaracion(&ts, $1, $2);
 
 			if(head_declaraciones == NULL)
@@ -532,11 +532,11 @@ declaracion_externa:
 ;
 
 declaracion_funcion:
-		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
-	|	declarador sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
-	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, $1, $2); }
-	|	declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, "", $1); }
-	|	error "}"	{}
+		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2, line); }
+	|	declarador sentencia_compuesta { crearNodo(&tail_funcion, "", $1, line); }
+	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, $1, $2, line); }
+	|	declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, "", $1, line); }
+	|	error '}'	{}
 ;
 
 %%

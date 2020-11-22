@@ -1,7 +1,34 @@
 #include <string.h>
+#include <stdbool.h>
 #include "../../headers/ts.h"
 
 //*transiciones[5]; -> Notar que los asteriscos estan siempre al principio
+
+ts_func* buscarFuncion(char* iden, ts_func* head_func) {
+	while(head_func != NULL && strcmp(iden, head_func->identificador) != 0)
+		head_func = head_func->siguiente;
+	return head_func;
+}
+
+ts_iden* buscarVariable(char* iden, ts_iden* head_iden) {
+	while(head_iden != NULL && strcmp(iden, head_iden->identificador) != 0)
+		head_iden = head_iden->siguiente;
+	return head_iden;
+}
+
+short obtenerPunteroArray(char* iden) {
+	short puntero = 0;
+	/*while(iden[0] != '\0') {
+		if(iden[0] == '[')
+			puntero++;
+		iden++;
+	}*/
+	for(int i = 0; i < strlen(iden); i++)
+		if(iden[i] == '[')
+			puntero++;
+
+	return puntero;
+}
 
 short tipoPuntero(char* str, _Bool desdeInicio) {
 	short tipo = 0;
@@ -17,6 +44,32 @@ short tipoPuntero(char* str, _Bool desdeInicio) {
 	}
 
 	return tipo;
+}
+
+// Si los tipos son compatibles pero diferentes seria ideal tirar un warning
+_Bool esCompatible(short tipo1, short tipo2) {
+	if(tipo1 == tipo2)
+		return true;
+	else if(tipo1 >= 1 && tipo1 <= 3 && tipo2 >= 1 && tipo2 <= 3)
+		return true;
+	else if(tipo1 >= 4 && tipo1 <= 13 && tipo2 >= 4 && tipo2 <= 13)
+		return true;
+	else
+		return false;
+}
+
+short esConstante(char c, short* punt) {
+	*punt = 0;
+
+	if(c == '\'')
+		return 1;
+	else if(c == '\"') {
+		*punt = 1;
+		return 1;
+	} else if(c >= 48 && c <= 57)
+		return 6;
+	else
+		return 0;
 }
 
 short encontrarTipo(char* especificadores) {

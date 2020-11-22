@@ -5,7 +5,7 @@
 void agregarError(NodoError** tail, int linea, char* tipo) {
 	NodoError* nuevoNodo = (NodoError*) malloc(sizeof(NodoError));
 
-	nuevoNodo->linea = linea;
+	nuevoNodo->linea = line;
 	nuevoNodo->siguiente = NULL;
 	nuevoNodo->tipo = malloc(strlen(tipo) + 1);
 	strcpy(nuevoNodo->tipo, tipo);

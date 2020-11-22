@@ -2,7 +2,7 @@
 #include <string.h>
 #include "../headers/funciones.h"
 
-void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador) {
+void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador, int linea) {
 	NodoFuncion* newNode = (NodoFuncion*) malloc(sizeof(NodoFuncion));
 
 	newNode->especificadores = malloc(strlen(especificadores) + 1);
@@ -11,7 +11,7 @@ void crearNodo(NodoFuncion** tail, char* especificadores, char* declarador) {
 	strcpy(newNode->especificadores, especificadores);
 	strcpy(newNode->declarador, declarador);
 
-	newNode->linea = line;
+	newNode->linea = linea;
 
 	newNode->siguiente = NULL;
 

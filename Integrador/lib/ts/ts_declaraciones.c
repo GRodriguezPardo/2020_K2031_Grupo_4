@@ -10,44 +10,6 @@ void agregarVariable(ts_iden**, short, short, char*);
 void sacarAsteriscos(char**);
 void iterarHastaSeparador(char**, char);
 char* separarDeclaraciones(char**);
-_Bool obtenerInformacionArray(char* decla, short* dimArray, int** arrSize);
-
-_Bool obtenerInformacionArray(char* decla, short* dimArray, int** arrSize) {
-	*dimArray = 0;
-	*arrSize = NULL;
-
-	while(decla[0] != '\0') {
-
-		if(decla[0] == '[') {
-			int dimension = 0;
-			(*dimArray)++;
-			char aux[strlen(decla) + 1];
-			strcpy(aux, decla); // strtok modifica la cadena, asi que la copiamos
-			char* dim = strtok(aux, "]");
-			/*
-				Si strtok devuelve solo "[", es decir, no esta definido el largo del array
-				Ej: a[][] -> Error semantico porque el segundo array si o si tiene que tener definido el largo
-			*/
-			if(strlen(dim) == 1 && *dimArray > 1) { 
-				crearErrorSemantico("Largo del array no definido");
-				return false; // Cortamos aca
-			} else {
-				dim++; // Avanzamos 1 posicion para descartar el '['
-				dimension = atoi(dim);
-			}
-
-			if(*arrSize == NULL)
-				*arrSize = malloc(sizeof(int));
-			else
-				*arrSize = realloc(*arrSize, sizeof(int) * (*dimArray));
-
-			(*arrSize)[*dimArray - 1] = dimension;
-		}
-
-		decla++;
-	}
-	return true;
-}
 
 // Verifica que el identificador no este asignado
 _Bool identificadorLibre(tablaSimbolos ts, char* identificador) {
@@ -73,30 +35,30 @@ _Bool identificadorLibre(tablaSimbolos ts, char* identificador) {
 void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identificador) {
 	ts_iden* nuevoNodo = (ts_iden*) malloc(sizeof(ts_iden));
 
-	// La posibilidad de error sintactico en la definicion de array esta dentro de la funcion obtenerInformacionArray
-	if(obtenerInformacionArray(identificador, &(nuevoNodo->dimArray), &(nuevoNodo->arrSize))) {
-		// Este while saca los [][] en caso de que haya (si es un array) para dejar solo el identificador
-		int i = 0;
-		while(i < strlen(identificador)) {
-			if(identificador[i] == '[') {
-				identificador[i] = '\0';
-				// El strcpy va a copiar solo hasta i. No preocuparse por la memoria "perdida" porque es stack memory (se limpia sola)
-				break;
-			}
-			i++;
+	puntero += obtenerPunteroArray(identificador); // Obtenemos datos de array
+	// Este while saca los [][] en caso de que haya (si es un array) para dejar solo el identificador
+	int i = 0;
+	while(i < strlen(identificador)) {
+		if(identificador[i] == '[') {
+			identificador[i] = '\0';
+			// El strcpy va a copiar solo hasta i. No preocuparse por la memoria "perdida" porque es stack memory (se limpia sola)
+			break;
 		}
-
-		nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
-		strcpy(nuevoNodo->identificador, identificador);
-		nuevoNodo->tipo = tipo;
-		nuevoNodo->puntero = puntero;
-		nuevoNodo->siguiente = NULL;
-
-		if(*tail != NULL)
-			(*tail)->siguiente = nuevoNodo;
-
-		*tail = nuevoNodo;
+		i++;
 	}
+
+	//printf("\n%s - %d\n", identificador, (int) puntero);
+
+	nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
+	strcpy(nuevoNodo->identificador, identificador);
+	nuevoNodo->tipo = tipo;
+	nuevoNodo->puntero = puntero;
+	nuevoNodo->siguiente = NULL;
+
+	if(*tail != NULL)
+		(*tail)->siguiente = nuevoNodo;
+
+	*tail = nuevoNodo;
 }
 
 void sacarAsteriscos(char** str) {
@@ -166,20 +128,22 @@ void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaracion
 		i++;
 	declaraciones[i] = ';';
 
-	//printf("\n\n--- %s", declaraciones);
 
-	// Analizamos cada argumento de la funcion
-	char* decla = separarDeclaraciones(&declaraciones);
 	/*
-	Dentro de cada nodo de funcion hay una lista de argumentos
+		A partir de aca
+		Analizamos cada argumento de la funcion
 	*/
+
+	char* decla = separarDeclaraciones(&declaraciones);
+
+	// Dentro de cada nodo de funcion hay una lista de argumentos
 
 	while(decla != NULL) {
 		ts_iden* nuevaVar = (ts_iden*) malloc(sizeof(ts_iden));
-		obtenerInformacionArray(decla, &(nuevaVar->dimArray), &(nuevaVar->arrSize));
 
 		// No podemos usar la funcion tipoPuntero() por las declaraciones de tipo  char* [] (ejemplo)
 		nuevaVar->puntero = 0;
+		nuevaVar->puntero += obtenerPunteroArray(decla);
 
 		for(int i = 0; i < strlen(decla); i++)
 			if(decla[i] == '*')

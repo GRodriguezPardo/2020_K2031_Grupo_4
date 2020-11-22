@@ -5,7 +5,7 @@ HEADERS = $(patsubst %,$(HEAD_DIR)/%,$(_HEADERS))
 _LIB =
 LDIR = ./lib
 
-_TS = ts_declaraciones.o tipos.o errorSemantico.o
+_TS = ts_declaraciones.o tipos.o errorSemantico.o ts_llamadasFunciones.o
 
 _OBJ = lex.yy.o bison.tab.o str_func.o archivosComentarios.o declaraciones.o colores.o funciones.o sentencias.o errores.o $(_TS)
 ODIR = ./compile
@@ -60,7 +60,7 @@ bison:
 	bison $(BFLAG) ./src/bison.y
 	mv bison.tab.h headers
 	@echo "-  Moviendo headers"
-	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c -L ./lib_flex_bison/liby.a
+	$(CC) $(DGFLAG) $(CFLAGS) ./compile/bison.tab.o bison.tab.c  -L ./lib_flex_bison/liby.a
 	@echo "\n===== ARCHIVO BISON GENERADO =====\n"
 
 ./compile/bison.tab.o:
