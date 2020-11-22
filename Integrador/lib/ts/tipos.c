@@ -12,6 +12,7 @@ ts_func* buscarFuncion(char* iden, ts_func* head_func) {
 }
 
 ts_iden* buscarVariable(char* iden, ts_iden* head_iden) {
+
 	while(head_iden != NULL && strcmp(iden, head_iden->identificador) != 0)
 		head_iden = head_iden->siguiente;
 	return head_iden;

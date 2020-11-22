@@ -83,14 +83,16 @@ void iterarHastaSeparador(char** aux, char extra) {
 char* separarDeclaraciones(char** str) {
 	if(*str != NULL) { // Por las dudas
 		char* aux = *str;
-
+		
 		if(aux[0] == ';' || aux[0] == '\0')
 			return NULL;
 
 		iterarHastaSeparador(&aux, '=');
 
-		char* ret = malloc(aux - *str + 1);
-		strncpy(ret, *str, aux - *str);
+		int num = aux - *str;
+		char* ret = malloc(num + 1);
+		strncpy(ret, *str, num);
+		ret[num] = '\0';
 		ret = trimStr(ret);
 		
 		iterarHastaSeparador(&aux, -1); // Si se paro en un '=' va a seguir hasta la proxima coma o punto y coma
@@ -104,11 +106,14 @@ char* separarDeclaraciones(char** str) {
 		return NULL;
 }
 
-void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaraciones, char* identificador) {
+void agregarFuncion(tablaSimbolos* ts, short tipo, short puntero, char* declaraciones, char* identificador) {
 	ts_func* nuevoNodo = (ts_func*) malloc(sizeof(ts_func));
 	nuevoNodo->tipo = tipo;
 	nuevoNodo->puntero = puntero;
 	nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
+	nuevoNodo->tail_args = NULL;
+	nuevoNodo->head_args = NULL;
+	nuevoNodo->siguiente = NULL;
 	strcpy(nuevoNodo->identificador, identificador);
 	// Adaptamos las declaraciones para poder usar la funcion separarDeclaraciones
 	int i = 0;
@@ -150,13 +155,18 @@ void agregarFuncion(ts_func** tail, short tipo, short puntero, char* declaracion
 		decla = separarDeclaraciones(&declaraciones);
 	}
 
-	if(*tail != NULL)
-		(*tail)->siguiente = nuevoNodo;
+	if(ts->tail_func != NULL)
+		(ts->tail_func)->siguiente = nuevoNodo;
 
-	*tail = nuevoNodo;
+	ts->tail_func = nuevoNodo;
 }
 
-void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores, char* declaraciones) {
+void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores_a, char* declaraciones_a) {
+	char* especificadores = malloc(strlen(especificadores_a) + 1);
+	char* declaraciones = malloc(strlen(declaraciones_a) + 1);
+	strcpy(declaraciones, declaraciones_a);
+	strcpy(especificadores, especificadores_a);
+
 	short tipo = encontrarTipo(especificadores);
 	short puntero = tipoPuntero(declaraciones, true);
 	sacarAsteriscos(&declaraciones);
@@ -169,12 +179,14 @@ void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores, char* decl
 
 		if(esFuncion) {
 			// strtok modifica el string asi que hay que copiarla
+
 			char* aux = malloc(strlen(decla) + 1);
 			strcpy(aux, decla);
 			char* identificador = strtok(aux, "(");
 			char* args = identificador + strlen(identificador) + 1;
+
 			if(identificadorLibre(*ts, identificador)) {
-				agregarFuncion(&(ts->tail_func), tipo, puntero, args, identificador);
+				agregarFuncion(ts, tipo, puntero, args, identificador);
 
 				if(ts->head_func == NULL)
 					ts->head_func = ts->tail_func;

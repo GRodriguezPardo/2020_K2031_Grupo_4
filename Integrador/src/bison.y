@@ -573,13 +573,9 @@ void main() {
 		printf("\n\nIDENTIFICADOR: %s", head_iden->identificador);
 		printf("\nTIPO: %d", (int) head_iden->tipo);
 		printf("\nPUNTERO: %d", (int) head_iden->puntero);
-		printf("\nDIM ARRAY: %d", (int) head_iden->dimArray);
-		for(int i = 0; i < head_iden->dimArray; i++) {
-			printf("\n%d", (head_iden->arrSize)[i]);
-		}
 		head_iden = head_iden->siguiente;
-	}
-
+	}*/
+/*
 	printf("\n\n\nFUNCIONES\n\n\n");
 
 	ts_func* head_func = ts.head_func;

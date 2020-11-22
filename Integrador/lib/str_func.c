@@ -15,6 +15,7 @@ char* trimStr(char* str) {
 
     char* ret = malloc(final - str + 2);
     strncpy(ret, str, final - str + 1);
+    ret[final - str + 1] = '\0';
   
     return ret;
 }
