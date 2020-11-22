@@ -134,7 +134,7 @@ expresion_multiplicativa:
 
 expresion_aditiva:
 		expresion_multiplicativa
-	|	expresion_aditiva '+' expresion_multiplicativa {sprintf($$ + strlen($$), " + %s", $3);}
+	|	expresion_aditiva '+' expresion_multiplicativa {sprintf($$ + strlen($$), " + %s", $3); validarSuma(ts, $1, $3);}
 	|	expresion_aditiva '-' expresion_multiplicativa {sprintf($$ + strlen($$), " - %s", $3);}
 ;
 

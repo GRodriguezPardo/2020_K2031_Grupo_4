@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../../headers/ts.h"
 
 //*transiciones[5]; -> Notar que los asteriscos estan siempre al principio
@@ -103,4 +104,15 @@ short encontrarTipo(char* especificadores) {
 		return 13;
 	else if(strstr(especificadores, "void"))
 		return 0;
+}
+
+void sacarAsteriscos(char** str) {
+	int i = 0;
+
+	while((*str)[i] == '*' || (*str)[i] == ' ')
+		i++;
+
+	char* aux = *str; // Para no perder la referencia a ese espacio de memoria
+	*str = malloc(strlen(aux) + 1 - i);
+	strcpy(*str, aux + i);
 }

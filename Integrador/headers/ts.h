@@ -56,6 +56,7 @@ typedef struct tablaSimbolos {
 
 void ts_analizarDeclaracion(tablaSimbolos*, char*, char*);
 void ts_analizarLlamada(char*, char*, ts_iden*, ts_func*);
+void validarSuma(tablaSimbolos, char*, char*);
 
 /*
 	TIPOS
@@ -68,3 +69,13 @@ short esConstante(char, short*);
 short obtenerPunteroArray(char*);
 ts_func* buscarFuncion(char*, ts_func*);
 ts_iden* buscarVariable(char*, ts_iden*);
+
+
+/*
+	PUNTEROS
+*/
+
+void sacarAsteriscos(char**);
+
+
+

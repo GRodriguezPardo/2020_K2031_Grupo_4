@@ -1,0 +1,4 @@
+void miFuncion(char a, float b) {
+
+	1+*a;
+}

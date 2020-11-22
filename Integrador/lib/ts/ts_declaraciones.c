@@ -7,7 +7,6 @@
 
 _Bool identificadorLibre(tablaSimbolos, char*);
 void agregarVariable(ts_iden**, short, short, char*);
-void sacarAsteriscos(char**);
 void iterarHastaSeparador(char**, char);
 char* separarDeclaraciones(char**);
 
@@ -59,17 +58,6 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 		(*tail)->siguiente = nuevoNodo;
 
 	*tail = nuevoNodo;
-}
-
-void sacarAsteriscos(char** str) {
-	int i = 0;
-
-	while((*str)[i] == '*' || (*str)[i] == ' ')
-		i++;
-
-	char* aux = *str; // Para no perder la referencia a ese espacio de memoria
-	*str = malloc(strlen(aux) + 1 - i);
-	strcpy(*str, aux + i);
 }
 
 void iterarHastaSeparador(char** aux, char extra) {
