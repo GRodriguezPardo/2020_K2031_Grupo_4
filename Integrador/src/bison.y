@@ -235,7 +235,7 @@ FIN EXPRESION
 declaracion:
 		especificadores_declaracion opt_declaracion {
 			agregarDeclaracion(&tail_declaraciones, $1, $2, line);
-			ts_analizarDeclaracion(&ts, $1, $2);
+			ts_analizarDeclaracion(&ts, $1, $2, false);
 
 			if(head_declaraciones == NULL)
 				head_declaraciones = tail_declaraciones;
@@ -532,7 +532,7 @@ declaracion_externa:
 ;
 
 declaracion_funcion:
-		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2, line); }
+		especificadores_declaracion declarador sentencia_compuesta { crearNodo(&tail_funcion, $1, $2, line); ts_analizarDeclaracion(&ts, $1, $2, true); }
 	|	declarador sentencia_compuesta { crearNodo(&tail_funcion, "", $1, line); }
 	|	especificadores_declaracion declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, $1, $2, line); }
 	|	declarador lista_declaraciones sentencia_compuesta { crearNodo(&tail_funcion, "", $1, line); }

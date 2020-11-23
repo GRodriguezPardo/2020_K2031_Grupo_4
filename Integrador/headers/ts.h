@@ -42,6 +42,7 @@ typedef struct ts_func {
 	short tipo;
 	short puntero;
 	char* identificador;
+	_Bool estaDefinida;
 	ts_iden* head_args;
 	ts_iden* tail_args; // A menos que se defina la funcion, no van a tener identificador
 	struct ts_func* siguiente;
@@ -54,10 +55,13 @@ typedef struct tablaSimbolos {
 	ts_func* tail_func;
 } tablaSimbolos;
 
-void ts_analizarDeclaracion(tablaSimbolos*, char*, char*);
+void ts_analizarDeclaracion(tablaSimbolos*, char*, char*, _Bool);
 void ts_analizarLlamada(char*, char*, ts_iden*, ts_func*);
 void validarSuma(tablaSimbolos, char*, char*);
+void ts_verificarDefinicion(char*, char*);
+void coincideConDeclaracion(ts_func*, short, short, char*, char*, _Bool);
 
+char* separarDeclaraciones(char**);
 /*
 	TIPOS
 */

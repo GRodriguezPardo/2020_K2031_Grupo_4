@@ -8,7 +8,7 @@
 _Bool identificadorLibre(tablaSimbolos, char*);
 void agregarVariable(ts_iden**, short, short, char*);
 void iterarHastaSeparador(char**, char);
-char* separarDeclaraciones(char**);
+void agregarFuncion(tablaSimbolos*, short, short, char*, char*, _Bool);
 
 // Verifica que el identificador no este asignado
 _Bool identificadorLibre(tablaSimbolos ts, char* identificador) {
@@ -46,8 +46,6 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 		i++;
 	}
 
-	//printf("\n%s - %d\n", identificador, (int) puntero);
-
 	nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
 	strcpy(nuevoNodo->identificador, identificador);
 	nuevoNodo->tipo = tipo;
@@ -61,7 +59,7 @@ void agregarVariable(ts_iden** tail, short tipo, short puntero, char* identifica
 }
 
 void iterarHastaSeparador(char** aux, char extra) {
-	while((*aux)[0] != ',' && (*aux)[0] !=';' && (*aux)[0] != extra) {
+	while((*aux)[0] != ',' && (*aux)[0] !=';' && (*aux)[0] != extra && (*aux)[0] != '\0') {
 		if((*aux)[0] == '(') {
 			while((*aux)[0] != ')')
 				(*aux)++;
@@ -106,11 +104,12 @@ char* separarDeclaraciones(char** str) {
 		return NULL;
 }
 
-void agregarFuncion(tablaSimbolos* ts, short tipo, short puntero, char* declaraciones, char* identificador) {
+void agregarFuncion(tablaSimbolos* ts, short tipo, short puntero, char* declaraciones, char* identificador, _Bool esDefinicion) {
 	ts_func* nuevoNodo = (ts_func*) malloc(sizeof(ts_func));
 	nuevoNodo->tipo = tipo;
 	nuevoNodo->puntero = puntero;
 	nuevoNodo->identificador = (char*) malloc(strlen(identificador) + 1);
+	nuevoNodo->estaDefinida = esDefinicion;
 	nuevoNodo->tail_args = NULL;
 	nuevoNodo->head_args = NULL;
 	nuevoNodo->siguiente = NULL;
@@ -124,7 +123,7 @@ void agregarFuncion(tablaSimbolos* ts, short tipo, short puntero, char* declarac
 
 	/*
 		A partir de aca
-		Analizamos cada argumento de la funcion
+		Analizamos cada argumento de la funicion
 	*/
 
 	char* decla = separarDeclaraciones(&declaraciones);
@@ -161,7 +160,7 @@ void agregarFuncion(tablaSimbolos* ts, short tipo, short puntero, char* declarac
 	ts->tail_func = nuevoNodo;
 }
 
-void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores_a, char* declaraciones_a) {
+void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores_a, char* declaraciones_a, _Bool esDefinicion) {
 	char* especificadores = malloc(strlen(especificadores_a) + 1);
 	char* declaraciones = malloc(strlen(declaraciones_a) + 1);
 	strcpy(declaraciones, declaraciones_a);
@@ -186,12 +185,13 @@ void ts_analizarDeclaracion(tablaSimbolos* ts, char* especificadores_a, char* de
 			char* args = identificador + strlen(identificador) + 1;
 
 			if(identificadorLibre(*ts, identificador)) {
-				agregarFuncion(ts, tipo, puntero, args, identificador);
+				agregarFuncion(ts, tipo, puntero, args, identificador, esDefinicion);
 
 				if(ts->head_func == NULL)
 					ts->head_func = ts->tail_func;
-			} else
-				error = true;
+			} else {
+				coincideConDeclaracion(ts->head_func, tipo, puntero, identificador, args, esDefinicion);
+			}
 		} else {
 			if(identificadorLibre(*ts, decla)) {
 				agregarVariable(&(ts->tail_iden), tipo, puntero, decla);

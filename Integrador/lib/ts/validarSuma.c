@@ -29,7 +29,6 @@ void validarSuma(tablaSimbolos ts, char* op1, char* op2) {
         return;
 
     // Pueden ser negativos (se estaria desreferenciando mal)
-    printf("\n%s - %s - %d - %d\n", operando1, operando2, esPuntero1, esPuntero2);
     if(esPuntero1 && esPuntero2)
         crearErrorSemantico("No se pueden sumar dos punteros");
     else if (!esCompatible(tipo1, tipo2))
@@ -71,7 +70,6 @@ _Bool analizarOperando(char* arg, short* puntero, short* tipo, tablaSimbolos ts)
             esFuncion++;
             free(esFuncion);
 
-            printf("\n%d\n", arg);
             ts_func* nodoFunc = buscarFuncion(arg, ts.head_func);
 
             if(nodoFunc == NULL) {
