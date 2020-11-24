@@ -1,12 +1,6 @@
 void miFuncion(char, float);
 
 void miFuncion(char c, float d) {
-
-	$;
-
-	int = 4;
-
-	2+b;
 }
 
 char otraFuncion(){

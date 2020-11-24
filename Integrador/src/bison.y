@@ -461,7 +461,7 @@ sentencia_etiquetada:
 ;
 
 sentencia_compuesta:
-		'{' '}'	{strcpy($$, "{memset($$, 0, sizeof($$));}");}
+		'{' '}'	{strcpy($$, "{}");}
 	|	'{' lista_bloque_codigo '}' {sprintf($$, "{%s}", $2);}
 	|	error '}'
 ;

@@ -144,7 +144,7 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
       return IDENTIFIER;
 }
 
-" "|\9|"\t" { 
+" "|\0|"\t" { 
       // No hacemos nada
 }
 

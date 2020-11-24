@@ -1,0 +1,38 @@
+char funcionQueDevuelveChar(){
+	return 'v';
+}
+
+int funcionQueDevuelveInt() {
+	return 5;
+}
+
+void miFuncion() {
+
+	int a = 8;
+	int* b;
+	*b = 6;
+
+	1+4;
+	
+	a + 'b';
+
+	4 + "hola";
+
+	a + b;	
+
+	a + *b;
+
+	a + **b;
+
+	b + b;
+
+	b + c;
+
+	b + unaFuncion();
+
+	a + funcionQueDevuelveChar();
+
+	a + funcionQueDevuelveInt();
+
+}
+
