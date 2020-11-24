@@ -550,10 +550,6 @@ int yyerror (char *s) {
 		head_errores = tail_errores;
 }
 
-//	Estas regla sirven de algo?
-// 
-// 
-
 void main() {
 	setupFiles(&yyin);
   	yyparse();

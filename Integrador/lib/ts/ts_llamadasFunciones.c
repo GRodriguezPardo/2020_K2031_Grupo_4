@@ -60,6 +60,8 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 	// Primero vemos si se desreferencia un puntero o se pasa por referencia
 	short punteroExtra = 0;
 
+	printf("\n%s\n", arg);
+
 	while(arg[0] == '*' || arg[0] == '&' || arg[0] == ' ') {
 		if(arg[0] == '*')
 			punteroExtra--;
@@ -68,6 +70,8 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 
 		arg++;
 	}
+
+	printf("\n%s\n", arg);
 
 	punteroExtra -= obtenerPunteroArray(arg); // Por si se accede al array. Ej: hacer a[5] seria acceder al array en 5
 
@@ -88,6 +92,8 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 	short isConst = esConstante(arg[0], &constPunt);
 	_Bool tipoCorrecto = true;
 	_Bool punteroCorrecto = true;
+
+	printf("\n%d\n", isConst);
 
 	if(isConst) {
 		if(!esCompatible(isConst, (*args)->tipo))
@@ -117,7 +123,7 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 			strcat(msg, " - ");
 			strcat(msg, arg);
 			crearErrorSemantico(msg);
-			//return;
+			return;
 		}
 
 		if(!esCompatible(var->tipo, (*args)->tipo))
@@ -151,6 +157,7 @@ void ts_analizarLlamada(char* iden, char* yylval_args, ts_iden* head_iden, ts_fu
 
 	char* arg = separarArgumento(&args);
 	while(arg != NULL) {
+		printf("\n%s - %s\n", arg, args);
 		analizarArgumento(arg, &argsFuncion, head_iden, head_func);
 		arg = separarArgumento(&args);
 	}
