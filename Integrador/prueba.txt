@@ -1,6 +1,6 @@
 void miFuncion(char, float);
 
-void miFuncion(char a, float b) {
+void miFuncion(char c, float d) {
 
 	1+"arroz";
 
@@ -11,4 +11,30 @@ void miFuncion(char a, float b) {
 	2+*b;
 
 	2+b;
+}
+
+char otraFuncion(){
+	return 'a';
+}
+
+char otraFuncion();
+
+int* terceraFuncion();
+int terceraFuncion(){
+	return 0;
+}
+
+void cuartaFuncion(char, char**);
+void cuartaFuncion(char a, char* b){
+	
+}
+
+void quintaFuncion(int, int, int);
+void quintaFuncion(char a, char b, char c){
+	
+}
+
+void sextaFuncion(int, char, float);
+void sextaFuncion(int a, char b, float c, char* d){
+	
 }

@@ -6,6 +6,9 @@
 void coincideConDeclaracion(ts_func* head_func, short tipo, short puntero, char* identificador, char* args, _Bool esDefinicion) {
     ts_func* nodoFunc = buscarFuncion(identificador, head_func);
 
+    char* aux = args;
+    args = strtok(aux, ")");
+
     if(nodoFunc == NULL) {
         crearErrorSemantico("Variable y funcion con el mismo nombre");
         return;
