@@ -2,13 +2,9 @@ void miFuncion(char, float);
 
 void miFuncion(char c, float d) {
 
-	1+"arroz";
+	$;
 
-	1+a;
-
-	int b = 5;
-
-	2+*b;
+	int = 4;
 
 	2+b;
 }
