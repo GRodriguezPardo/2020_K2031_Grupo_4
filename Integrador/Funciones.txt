@@ -26,5 +26,8 @@ void quintaFuncion(char a, char b, char c){
 
 void sextaFuncion(int, char, float);
 void sextaFuncion(int a, char b, float c, char* d){
-	
+}
+
+int main(){
+	miFuncion('a', 3.14);
 }

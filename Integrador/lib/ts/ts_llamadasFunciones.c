@@ -84,21 +84,15 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 		i++;
 	}
 
-	/*int i = 0;
-	while(arg[i] != '[' && arg[i] != '\0')
-		i++;
-
-	if(arg[i] == '[') arg[i] = '\0';*/
-	// Fin array
-
 	short constPunt;
 	short isConst = esConstante(arg[0], &constPunt);
 	_Bool tipoCorrecto = true;
 	_Bool punteroCorrecto = true;
+
 	if(isConst) {
 		if(!esCompatible(isConst, (*args)->tipo))
 			tipoCorrecto = false;
-		else if(constPunt == (*args)->puntero)
+		else if(constPunt != (*args)->puntero)
 			punteroCorrecto = false;
 	} else if(strstr(arg, "(") != NULL) { // es otra llamada de funcion
 		int i = 0;
@@ -126,8 +120,6 @@ void analizarArgumento(char* arg, ts_iden** args, ts_iden* head_iden, ts_func* h
 			//return;
 		}
 
-		//printf("\n\nLinea: %d\nIDEN: %s\nTIPO VAR: %d\nTIPO ARG_FUNC: %d\nPUNTERO VAR: %d\nPUNTERO_ARG: %d\nPUNT EXTRA: %d", line, arg, var->tipo, (*args)->tipo, var->puntero, (*args)->puntero, punteroExtra);
-		//printf("\nSUMA PUNT: %d\n\n", var->puntero + punteroExtra);
 		if(!esCompatible(var->tipo, (*args)->tipo))
 			tipoCorrecto = false;
 		

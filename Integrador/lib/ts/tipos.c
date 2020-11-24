@@ -20,11 +20,6 @@ ts_iden* buscarVariable(char* iden, ts_iden* head_iden) {
 
 short obtenerPunteroArray(char* iden) {
 	short puntero = 0;
-	/*while(iden[0] != '\0') {
-		if(iden[0] == '[')
-			puntero++;
-		iden++;
-	}*/
 	for(int i = 0; i < strlen(iden); i++)
 		if(iden[i] == '[')
 			puntero++;
