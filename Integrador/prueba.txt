@@ -1,14 +1,8 @@
-void miFuncion(char, float);
-
 void miFuncion(char a, float b) {
 
-	1+"arroz";
+	$;
 
-	1+a;
+	int = 4;
 
-	int b = 5;
-
-	2+*b;
-
-	2+b;
+	char miFuncion = '2';
 }

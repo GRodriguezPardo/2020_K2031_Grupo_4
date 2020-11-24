@@ -158,7 +158,10 @@ CARACTERES_ESCAPE "\\a"|"\\b"|"\\e"|"\\f"|"\\n"|"\\r"|"\\t"|"\\v"|"\\"|"\\'"|"\"
 
 . { 
       hayError = true;
-      agregarError(&tail_errores, line, "lexico");
+      char* causa = malloc(27 + 1 + 1);  // 27 de "lexico - Caracter erroneo: "  1 del caracter yytext[0] y uno para '\0'
+	strcpy(causa, "lexico - Caracter erroneo: ");
+	strcat(causa, yytext);
+      agregarError(&tail_errores, line, causa);
 
       if(head_errores == NULL)
             head_errores = tail_errores;
